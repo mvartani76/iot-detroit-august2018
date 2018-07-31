@@ -1,17 +1,17 @@
 #!/usr/bin/python
 
 """
-Usage: sudo ibeacon [-u|--uuid=UUID or `random' (default=Digital2Go Media Networks UUID)]
-                    [-M|--major=major (0-65535, default=0)]
-                    [-m|--minor=minor (0-65535, default=0)]
-                    [-a]--minadv=minimum advertising interval (100-3000ms, default=350ms)
-                    [-A]--maxadv=maximum advertising interval (100-3000ms, default=400ms)
-                    [-p|--power=power (0-255, default=200)]
-                    [-d|--device=BLE device to use (default=hci0)]
-                    [-z|--down]
-                    [-v|--verbose]
-                    [-n|--simulate (implies -v)]
-                    [-h|--help]
+Usage: sudo ibeacon.py [-u|--uuid=UUID or `random' (default=Digital2Go Media Networks UUID)]
+                       [-M|--major=major (0-65535, default=0)]
+                       [-m|--minor=minor (0-65535, default=0)]
+                       [-a]--minadv=minimum advertising interval (100-3000ms, default=350ms)
+                       [-A]--maxadv=maximum advertising interval (100-3000ms, default=400ms)
+                       [-p|--power=power (0-255, default=200)]
+                       [-d|--device=BLE device to use (default=hci0)]
+                       [-z|--down]
+                       [-v|--verbose]
+                       [-n|--simulate (implies -v)]
+                       [-h|--help]
 
 The default UUID is the registered UUID for Digital2Go Media Networks (www.digital2go.com)
 
