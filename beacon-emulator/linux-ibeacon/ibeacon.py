@@ -1,9 +1,11 @@
 #!/usr/bin/python
 
 """
-Usage: sudo ibeacon [-u|--uuid=UUID or `random' (default=Beacon Toolkit app)]
+Usage: sudo ibeacon [-u|--uuid=UUID or `random' (default=Digital2Go Media Networks UUID)]
                     [-M|--major=major (0-65535, default=0)]
                     [-m|--minor=minor (0-65535, default=0)]
+                    [-a]--minadv=minimum advertising interval (100-3000ms, default=350ms)
+                    [-A]--maxadv=maximum advertising interval (100-3000ms, default=400ms)
                     [-p|--power=power (0-255, default=200)]
                     [-d|--device=BLE device to use (default=hci0)]
                     [-z|--down]
@@ -50,6 +52,7 @@ def hexify(i, digits=2):
 # swap the byte order of a 16-bit hex value
 # NOT USED, leaving this here just in case, turns out major/minor ids
 # are big-endian (i.e. no swap required)
+# UPDATE - this is needed for the advertising intervals
 def endian_swap(hex):
   hexbyte1 = hex[0] + hex[1]
   hexbyte2 = hex[2] + hex[3]
@@ -102,6 +105,12 @@ def main(argv=None):
   # default to the first available bluetooth device
   device = "hci0"
 
+  # default minimum advertising interval (in milliseconds)
+  min_adv = int(os.getenv("MIN_ADV_INTERVAL", "350"))
+
+  # default maximum advertising interval (in milliseconds)
+  max_adv = int(os.getenv("MAX_ADV_INTERVAL", "400"))
+
   # default power level
   power = int(os.getenv("IBEACON_POWER", "200"))
 
@@ -116,7 +125,7 @@ def main(argv=None):
   # parse command line options
   try:
     try:
-      opts, args = getopt.getopt(argv[1:], "hu:M:m:p:vd:nz", ["help", "uuid=", "major=", "minor=", "power=", "verbose", "device=", "simulate", "down"])
+      opts, args = getopt.getopt(argv[1:], "hu:M:m:a:A:p:vd:nz", ["help", "uuid=", "major=", "minor=", "min_adv=","max_adv=","power=", "verbose", "device=", "simulate", "down"])
 
     except getopt.error, msg:
       raise Usage(msg)
@@ -136,6 +145,10 @@ def main(argv=None):
         major = int(a)
       elif o in ("-m", "--minor"):
         minor = int(a)
+      elif o in ("-a", "--minadv"):
+        min_adv = int(a)
+      elif o in ("-A", "--maxadv"):
+        max_adv = int(a)
       elif o in ("-p", "--power"):
         power = int(a)
       elif o in ("-v", "--verbose"):
@@ -178,6 +191,18 @@ def main(argv=None):
       print "Error: minor id is out of bounds (0-65535)"
       return 1
 
+    # Bound the advertising intervals to 100ms - 3000ms
+    # Also make sure that the max > min
+    if min_adv < 100 or min_adv > 3000:
+      print "Error: min_adv is out of bounds (100-3000)"
+      return 1
+    if max_adv < 100 or max_adv > 3000:
+      print "Error: max_adv is out of bounds (100-3000)"
+      return 1
+    if min_adv > max_adv:
+      print "Error: min_adv > max_adv"
+      return 1
+
     # bail if we're not running as superuser (don't care if we are simulating)
     if not simulate and not check_for_sudo():
       return 1
@@ -189,10 +214,18 @@ def main(argv=None):
     major_hex = hexify(major, 4)
     minor_hex = hexify(minor, 4)
 
+    # convert min_adv/max_adv into hex
+    min_adv_hex = hexify(int(min_adv/0.625), 4)
+    max_adv_hex = hexify(int(max_adv/0.625), 4)
+
     # create split versions of these (for the hcitool command)
     split_major_hex = hexsplit(major_hex)
     split_minor_hex = hexsplit(minor_hex)
 
+    # create split versions with endian swap for advertising intervals
+    split_min_adv_hex = hexsplit(endian_swap(min_adv_hex))
+    split_max_adv_hex = hexsplit(endian_swap(max_adv_hex))
+    print "split min/max %s/%s" % (split_min_adv_hex, split_max_adv_hex) 
     # convert power into hex
     power_hex = hexify(power, 2)
 
@@ -206,6 +239,7 @@ def main(argv=None):
     print "       uuid: 0x%s" % uuid
     print "major/minor: %d/%d (0x%s/0x%s)" % (major, minor, major_hex, minor_hex)
     print "      power: %d (0x%s)" % (power, power_hex)
+    print "min/max adv: %d/%d (0x%s/0x%s)" % (min_adv, max_adv, min_adv_hex, max_adv_hex)
 
     # first bring up bluetooth
     process_command("hciconfig %s up" % device)
@@ -217,7 +251,7 @@ def main(argv=None):
     # pipe stdout to /dev/null to get rid of the ugly "here's what I did"
     # message from hcitool
     process_command("hcitool -i hci0 cmd 0x08 0x0008 1E 02 01 1A 1A FF 4C 00 02 15 %s %s %s %s 00 >/dev/null" % (split_uuid, split_major_hex, split_minor_hex, power_hex))
-    process_command("hcitool -i hci0 cmd 0x08 0x0006 A0 00 A0 00 03 00 00 00 00 00 00 00 00 07 00")
+    process_command("hcitool -i hci0 cmd 0x08 0x0006 %s %s 03 00 00 00 00 00 00 00 00 07 00" % (split_min_adv_hex, split_max_adv_hex))
     process_command("hcitool -i hci0 cmd 0x08 0x000a 01")
 
 
