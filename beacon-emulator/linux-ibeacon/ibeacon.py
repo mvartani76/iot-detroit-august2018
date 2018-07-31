@@ -11,8 +11,7 @@ Usage: sudo ibeacon [-u|--uuid=UUID or `random' (default=Beacon Toolkit app)]
                     [-n|--simulate (implies -v)]
                     [-h|--help]
 
-The default UUID matches that which the "Beacon Toolkit" app uses.
-https://itunes.apple.com/us/app/beacon-toolkit/id728479775
+The default UUID is the registered UUID for Digital2Go Media Networks (www.digital2go.com)
 
 UUID, major, minor and power may also be specified by setting the environment
 variables `IBEACON_UUID,' `IBEACON_MAJOR,' `IBEACON_MINOR' and `IBEACON_POWER.'
