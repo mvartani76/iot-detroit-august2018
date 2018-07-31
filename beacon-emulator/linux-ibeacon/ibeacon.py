@@ -96,7 +96,7 @@ def main(argv=None):
   uuid = os.getenv("IBEACON_UUID", "8D847D200116435F9A212FA79A706D9E")
 
   # major and minor ids, can be overriden with environment variable
-  major = int(os.getenv("IBEACON_MAJOR", "122"))
+  major = int(os.getenv("IBEACON_MAJOR", "0"))
   minor = int(os.getenv("IBEACON_MINOR", "0"))
 
   # default to the first available bluetooth device
