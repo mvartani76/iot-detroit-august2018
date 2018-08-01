@@ -11,6 +11,7 @@ import CoreLocation
 
 class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
     
+    @IBOutlet var monitorView: UIView!
     @IBOutlet weak var monitorLabel: UILabel!
     
     let IBEACON_PROXIMITY_UUID = "8D847D20-0116-435F-9A21-2FA79A706D9E"
@@ -31,6 +32,7 @@ class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
             startMonitoring(beaconRegion: beaconRegion)
             print("start monitoring...")
             monitorLabel.text = ""
+            monitorView.backgroundColor = UIColor.white
         }
     }
     
@@ -72,6 +74,7 @@ class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
         if let beaconRegion = region as? CLBeaconRegion {
             print("DID ENTER REGION: uuid: \(beaconRegion.proximityUUID.uuidString)")
             monitorLabel.text = "DID ENTER REGION: \nuuid: \(beaconRegion.proximityUUID.uuidString)"
+            monitorView.backgroundColor = UIColor.blue
         }
     }
     
@@ -79,6 +82,7 @@ class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
         if let beaconRegion = region as? CLBeaconRegion {
             print("DID EXIT REGION: uuid: \(beaconRegion.proximityUUID.uuidString)")
             monitorLabel.text = "DID EXIT REGION: \nuuid: \(beaconRegion.proximityUUID.uuidString)"
+            monitorView.backgroundColor = UIColor.lightGray
         }
     }
 }
