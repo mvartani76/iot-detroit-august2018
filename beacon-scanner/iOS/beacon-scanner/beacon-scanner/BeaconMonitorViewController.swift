@@ -23,6 +23,15 @@ class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
         locationManager.requestAlwaysAuthorization()
         print("end of viewdidload")
     }
+
+    override func viewDidAppear(_ animated: Bool) {
+        if let uuid = NSUUID(uuidString: IBEACON_PROXIMITY_UUID) {
+            print(uuid)
+            let beaconRegion = CLBeaconRegion(proximityUUID: uuid as UUID, identifier: "iBeacon")
+            startMonitoring(beaconRegion: beaconRegion)
+            print("stop monitoring...")
+        }
+    }
     
     override func viewWillDisappear(_ animated: Bool) {
         if let uuid = NSUUID(uuidString: IBEACON_PROXIMITY_UUID) {
@@ -33,23 +42,6 @@ class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     
-    
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        if !(status == .authorizedAlways || status == .authorizedWhenInUse) {
-            print("Must allow location access for this application to work")
-        } else {
-            print("maybe in here?")
-            if let uuid = NSUUID(uuidString: IBEACON_PROXIMITY_UUID) {
-                let beaconRegion = CLBeaconRegion(proximityUUID: uuid as UUID, identifier: "iBeacon")
-                startMonitoring(beaconRegion: beaconRegion)
-                //startRanging(beaconRegion: beaconRegion)
-                print("start monitoring...")
-            }
-        }
-    }
-    func startRanging(beaconRegion: CLBeaconRegion) {
-        locationManager.startRangingBeacons(in: beaconRegion)
-    }
     func startMonitoring(beaconRegion: CLBeaconRegion) {
         beaconRegion.notifyOnEntry = true
         beaconRegion.notifyOnExit = true
