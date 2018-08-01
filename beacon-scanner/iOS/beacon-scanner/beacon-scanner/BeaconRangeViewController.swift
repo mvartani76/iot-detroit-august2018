@@ -24,24 +24,20 @@ class BeaconRangeViewController: UIViewController, CLLocationManagerDelegate {
         print("end of range view load")
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        if let uuid = NSUUID(uuidString: IBEACON_PROXIMITY_UUID) {
+            print(uuid)
+            let beaconRegion = CLBeaconRegion(proximityUUID: uuid as UUID, identifier: "iBeacon")
+            startRanging(beaconRegion: beaconRegion)
+            print("start ranging...")
+        }
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         if let uuid = NSUUID(uuidString: IBEACON_PROXIMITY_UUID) {
             let beaconRegion = CLBeaconRegion(proximityUUID: uuid as UUID, identifier: "iBeacon")
             stopRanging(beaconRegion: beaconRegion)
             print("stop ranging...")
-        }
-    }
-
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        if !(status == .authorizedAlways || status == .authorizedWhenInUse) {
-            print("Must allow location access for this application to work")
-        } else {
-            print("maybe in here - ranging?")
-            if let uuid = NSUUID(uuidString: IBEACON_PROXIMITY_UUID) {
-                let beaconRegion = CLBeaconRegion(proximityUUID: uuid as UUID, identifier: "iBeacon")
-                startRanging(beaconRegion: beaconRegion)
-                print("start ranging...")
-            }
         }
     }
 
