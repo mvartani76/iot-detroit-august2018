@@ -11,6 +11,8 @@ import CoreLocation
 
 class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
     
+    @IBOutlet weak var monitorLabel: UILabel!
+    
     let IBEACON_PROXIMITY_UUID = "8D847D20-0116-435F-9A21-2FA79A706D9E"
     var locationManager: CLLocationManager!
     
@@ -28,6 +30,7 @@ class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
             let beaconRegion = CLBeaconRegion(proximityUUID: uuid as UUID, identifier: "iBeacon")
             startMonitoring(beaconRegion: beaconRegion)
             print("start monitoring...")
+            monitorLabel.text = ""
         }
     }
     
@@ -66,16 +69,16 @@ class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-        print("i entered a region")
         if let beaconRegion = region as? CLBeaconRegion {
             print("DID ENTER REGION: uuid: \(beaconRegion.proximityUUID.uuidString)")
+            monitorLabel.text = "DID ENTER REGION: \nuuid: \(beaconRegion.proximityUUID.uuidString)"
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
-        print("i exited a region")
         if let beaconRegion = region as? CLBeaconRegion {
             print("DID EXIT REGION: uuid: \(beaconRegion.proximityUUID.uuidString)")
+            monitorLabel.text = "DID EXIT REGION: \nuuid: \(beaconRegion.proximityUUID.uuidString)"
         }
     }
 }
