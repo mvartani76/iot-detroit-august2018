@@ -21,12 +21,10 @@ class BeaconRangeViewController: UIViewController, CLLocationManagerDelegate {
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         locationManager.requestAlwaysAuthorization()
-        print("end of range view load")
     }
     
     override func viewDidAppear(_ animated: Bool) {
         if let uuid = NSUUID(uuidString: IBEACON_PROXIMITY_UUID) {
-            print(uuid)
             let beaconRegion = CLBeaconRegion(proximityUUID: uuid as UUID, identifier: "iBeacon")
             startRanging(beaconRegion: beaconRegion)
             print("start ranging...")

@@ -26,10 +26,9 @@ class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
 
     override func viewDidAppear(_ animated: Bool) {
         if let uuid = NSUUID(uuidString: IBEACON_PROXIMITY_UUID) {
-            print(uuid)
             let beaconRegion = CLBeaconRegion(proximityUUID: uuid as UUID, identifier: "iBeacon")
             startMonitoring(beaconRegion: beaconRegion)
-            print("stop monitoring...")
+            print("start monitoring...")
         }
     }
     
