@@ -1,5 +1,5 @@
 //
-//  FirstViewController.swift
+//  BeaconMonitorViewController.swift
 //  beacon-scanner
 //
 //  Created by Michael Vartanian on 7/31/18.
@@ -9,7 +9,7 @@
 import UIKit
 import CoreLocation
 
-class FirstViewController: UIViewController, CLLocationManagerDelegate {
+class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
     
     let IBEACON_PROXIMITY_UUID = "8D847D20-0116-435F-9A21-2FA79A706D9E"
     var locationManager: CLLocationManager!
