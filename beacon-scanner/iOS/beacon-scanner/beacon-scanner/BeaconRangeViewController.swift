@@ -72,7 +72,7 @@ class BeaconRangeViewController: UIViewController, CLLocationManagerDelegate {
                 rangeView.backgroundColor = UIColor.yellow
             }
             print("BEACON RANGED: uuid: \(beacon.proximityUUID.uuidString) major: \(beacon.major)  minor: \(beacon.minor) proximity: \(beaconProximity)")
-            rangeLabel.text = "BEACON RANGED:\nuuid: \(beacon.proximityUUID.uuidString)\nmajor: \(beacon.major)\nminor: \(beacon.minor)\nproximity: \(beaconProximity)"
+            rangeLabel.text = "BEACON RANGED:\nuuid: \(beacon.proximityUUID.uuidString)\nmajor: \(beacon.major)\nminor: \(beacon.minor)\nproximity: \(beaconProximity)\nRSSI: \(beacon.rssi)"
         }
     }
 }
