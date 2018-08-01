@@ -1,5 +1,5 @@
 //
-//  SecondViewController.swift
+//  BeaconRangeViewController.swift
 //  beacon-scanner
 //
 //  Created by Michael Vartanian on 7/31/18.
@@ -9,7 +9,7 @@
 import UIKit
 import CoreLocation
 
-class SecondViewController: UIViewController, CLLocationManagerDelegate {
+class BeaconRangeViewController: UIViewController, CLLocationManagerDelegate {
     
     let IBEACON_PROXIMITY_UUID = "8D847D20-0116-435F-9A21-2FA79A706D9E"
     var locationManager: CLLocationManager!
@@ -19,7 +19,9 @@ class SecondViewController: UIViewController, CLLocationManagerDelegate {
         
         locationManager = CLLocationManager()
         locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
         locationManager.requestAlwaysAuthorization()
+        print("end of range view load")
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -34,6 +36,7 @@ class SecondViewController: UIViewController, CLLocationManagerDelegate {
         if !(status == .authorizedAlways || status == .authorizedWhenInUse) {
             print("Must allow location access for this application to work")
         } else {
+            print("maybe in here - ranging?")
             if let uuid = NSUUID(uuidString: IBEACON_PROXIMITY_UUID) {
                 let beaconRegion = CLBeaconRegion(proximityUUID: uuid as UUID, identifier: "iBeacon")
                 startRanging(beaconRegion: beaconRegion)
