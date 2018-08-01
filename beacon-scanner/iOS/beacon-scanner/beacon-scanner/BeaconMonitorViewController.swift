@@ -21,7 +21,6 @@ class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         locationManager.requestAlwaysAuthorization()
-        print("end of viewdidload")
     }
 
     override func viewDidAppear(_ animated: Bool) {
