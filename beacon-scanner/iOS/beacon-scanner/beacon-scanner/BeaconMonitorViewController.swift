@@ -78,19 +78,5 @@ class BeaconMonitorViewController: UIViewController, CLLocationManagerDelegate {
             print("DID EXIT REGION: uuid: \(beaconRegion.proximityUUID.uuidString)")
         }
     }
-/*
-    func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion) {
-        print("diddeterminestate")
-        print(state)
-        switch state {
-        case .inside:
-            print("inside")
-        case .outside:
-            print("outside")
-        case .unknown:
-            print("unknown")
-        }
-    }
-    */
 }
 
