@@ -11,6 +11,8 @@ import CoreLocation
 
 class BeaconRangeViewController: UIViewController, CLLocationManagerDelegate {
     
+    @IBOutlet weak var rangeLabel: UILabel!
+    
     let IBEACON_PROXIMITY_UUID = "8D847D20-0116-435F-9A21-2FA79A706D9E"
     var locationManager: CLLocationManager!
     
@@ -28,6 +30,7 @@ class BeaconRangeViewController: UIViewController, CLLocationManagerDelegate {
             let beaconRegion = CLBeaconRegion(proximityUUID: uuid as UUID, identifier: "iBeacon")
             startRanging(beaconRegion: beaconRegion)
             print("start ranging...")
+            rangeLabel.text = ""
         }
     }
     
@@ -63,6 +66,7 @@ class BeaconRangeViewController: UIViewController, CLLocationManagerDelegate {
                 beaconProximity = "Far"
             }
             print("BEACON RANGED: uuid: \(beacon.proximityUUID.uuidString) major: \(beacon.major)  minor: \(beacon.minor) proximity: \(beaconProximity)")
+            rangeLabel.text = "BEACON RANGED:\nuuid: \(beacon.proximityUUID.uuidString)\nmajor: \(beacon.major)\nminor: \(beacon.minor)\nproximity: \(beaconProximity)"
         }
     }
 }
