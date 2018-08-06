@@ -144,7 +144,10 @@ public class MainActivity extends ActionBarActivity
                 // minor
                 final int minor = (scanRecord[startByte + 22] & 0xff) * 0x100 + (scanRecord[startByte + 23] & 0xff);
 
-                Log.i(LOG_TAG,"UUID: " +uuid + "\\nmajor: " +major +"\\nminor" +minor);
+                // Tx Power
+                final int tx_power = (scanRecord[startByte + 24] & 0xff);
+
+                Log.i(LOG_TAG,"UUID: " +uuid + "\\nmajor: " +major +"\\nminor" +minor +"\\nrssi" +tx_power;
             }
 
         }
