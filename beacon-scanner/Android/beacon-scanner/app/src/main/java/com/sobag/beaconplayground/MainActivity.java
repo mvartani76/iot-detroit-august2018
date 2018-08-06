@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -45,6 +46,10 @@ public class MainActivity extends ActionBarActivity
         btAdapter = btManager.getAdapter();
 
         scanHandler.post(scanRunnable);
+
+
+        //TextView tv = (TextView) findViewById(R.id.myTextView);
+        //tv.setText("yo yo yo");
     }
 
     @Override
@@ -147,7 +152,9 @@ public class MainActivity extends ActionBarActivity
                 // Tx Power
                 final int tx_power = (scanRecord[startByte + 24] & 0xff);
 
-                Log.i(LOG_TAG,"UUID: " +uuid + "\\nmajor: " +major +"\\nminor" +minor +"\\nrssi" +tx_power;
+                Log.i(LOG_TAG,"UUID: " +uuid + "\\nmajor: " +major +"\\nminor" +minor +"\\nrssi" +tx_power);
+                TextView tv = (TextView) findViewById(R.id.myTextView);
+                tv.setText("UUID="+uuid+"\nmajor ="+major+" minor="+minor);
             }
 
         }
