@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends AppCompatActivity
 {
 
     // ------------------------------------------------------------------------
@@ -31,6 +31,15 @@ public class MainActivity extends ActionBarActivity
     private int scan_interval_ms = 5000;
     private boolean isScanning = false;
 
+    // Define a class to organize beacon information
+    class Beacon {
+        public String uuid;
+        public String major;
+        public String minor;
+    }
+
+    // Create an array of 20 Beacons
+    Beacon[] beacons = new Beacon[20];
     // ------------------------------------------------------------------------
     // default stuff...
     // ------------------------------------------------------------------------
@@ -46,10 +55,6 @@ public class MainActivity extends ActionBarActivity
         btAdapter = btManager.getAdapter();
 
         scanHandler.post(scanRunnable);
-
-
-        //TextView tv = (TextView) findViewById(R.id.myTextView);
-        //tv.setText("yo yo yo");
     }
 
     @Override
