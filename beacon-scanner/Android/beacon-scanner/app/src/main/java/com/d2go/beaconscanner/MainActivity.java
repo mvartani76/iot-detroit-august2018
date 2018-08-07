@@ -1,4 +1,4 @@
-package com.sobag.beaconplayground;
+package com.d2go.beaconscanner;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -25,9 +25,9 @@ import android.content.DialogInterface;
 import android.text.method.ScrollingMovementMethod;
 import android.os.AsyncTask;
 
+
 public class MainActivity extends AppCompatActivity
 {
-
     // ------------------------------------------------------------------------
     // members
     // ------------------------------------------------------------------------
