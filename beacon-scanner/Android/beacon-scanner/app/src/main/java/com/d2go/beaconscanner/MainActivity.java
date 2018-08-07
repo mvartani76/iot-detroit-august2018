@@ -9,6 +9,7 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -44,6 +45,9 @@ public class MainActivity extends AppCompatActivity
     TextView peripheralTextView;
     private final static int REQUEST_ENABLE_BT = 1;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+    private double PROXIMITY_IMMEDIATE_THRESH = 0.2;
+    private double PROXIMITY_NEAR_THRESH = 4.0;
+    private double PROXIMITY_FAR_THRESH = 15.0;
 
     // Define a class to organize beacon information
     class Beacon {
@@ -160,8 +164,6 @@ public class MainActivity extends AppCompatActivity
     private ScanCallback leScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            //peripheralTextView.append("Device Name: " + result.getDevice().getName() + " rssi: " + result.getRssi() + "\n");
-            //peripheralTextView.append("Record: "+result.getScanRecord()+"\n");
 
             final byte[] scanRecord = result.getScanRecord().getBytes();
 
@@ -199,7 +201,32 @@ public class MainActivity extends AppCompatActivity
                 final int tx_power = (scanRecord[startByte + 24] & 0xff);
 
                 if (uuid.equals(d2go_uuid)) {
-                    peripheralTextView.append("uuid: " + uuid + "\nmajor: " + major + "\nminor: " + minor + "\nrssi: " + result.getRssi() + "\n");
+                    // it appears that txpower numbers are 8 bit 2s complement
+                    final double distance = getDistance(result.getRssi(), tx_power-256);
+                    final String proximity = getProximity(distance);
+                    switch(proximity) {
+                        case "immediate":
+                            peripheralTextView.setBackgroundColor(Color.RED);
+                            break;
+                        case "near":
+                            peripheralTextView.setBackgroundColor(Color.rgb(255,165,0));
+                            break;
+                        case "far":
+                            peripheralTextView.setBackgroundColor(Color.YELLOW);
+                            break;
+                        case "unknown":
+                            peripheralTextView.setBackgroundColor(Color.WHITE);
+                            break;
+                        default:
+                            peripheralTextView.setBackgroundColor(Color.WHITE);
+                            return;
+                    }
+
+
+
+                    peripheralTextView.append("uuid: " + uuid + "\nmajor: " + major + "\nminor: " + minor + "\nrssi: " + result.getRssi() + "\nProximity: " +proximity +"\ndistance: " + distance + "\n");
+
+
                 }
 
                 // auto scroll for text view
@@ -260,5 +287,28 @@ public class MainActivity extends AppCompatActivity
                 btleScanner.stopScan(leScanCallback);
             }
         });
+    }
+
+    double getDistance(int rssi, int txPower) {
+        /*
+         * RSSI = TxPower - 10 * n * lg(d)
+         * n = 2 (in free space)
+         *
+         * d = 10 ^ ((TxPower - RSSI) / (10 * n))
+         */
+
+        return Math.pow(10d, ((double) txPower - rssi) / (10 * 2));
+    }
+
+    // Return proximity based on given distance
+    String getProximity(double distance) {
+        if (distance < PROXIMITY_IMMEDIATE_THRESH)
+            return "immediate";
+        else if (distance < PROXIMITY_NEAR_THRESH)
+            return "near";
+        else if (distance < PROXIMITY_FAR_THRESH)
+            return "far";
+        else
+            return "unknown";
     }
 }
