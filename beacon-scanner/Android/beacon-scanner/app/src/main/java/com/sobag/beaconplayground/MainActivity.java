@@ -1,20 +1,29 @@
 package com.sobag.beaconplayground;
-
+import android.Manifest;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.content.pm.PackageManager;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-
-import java.util.Date;
-import java.util.HashMap;
-
+import android.view.View;
+import android.widget.Button;
+import android.content.DialogInterface;
+import android.text.method.ScrollingMovementMethod;
+import android.os.AsyncTask;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -25,11 +34,19 @@ public class MainActivity extends AppCompatActivity
 
     private static final String LOG_TAG = "MainActivity";
 
+    Button startScanningButton;
+    Button stopScanningButton;
+
     private BluetoothManager btManager;
     private BluetoothAdapter btAdapter;
+    private BluetoothLeScanner btleScanner;
     private Handler scanHandler = new Handler();
     private int scan_interval_ms = 5000;
+    private String d2go_uuid = "8D847D20-0116-435F-9A21-2FA79A706D9E";
     private boolean isScanning = false;
+    TextView peripheralTextView;
+    private final static int REQUEST_ENABLE_BT = 1;
+    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
     // Define a class to organize beacon information
     class Beacon {
@@ -45,16 +62,54 @@ public class MainActivity extends AppCompatActivity
     // ------------------------------------------------------------------------
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // init BLE
-        btManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
-        btAdapter = btManager.getAdapter();
+        peripheralTextView = (TextView) findViewById(R.id.PeripheralTextView);
+        peripheralTextView.setMovementMethod(new ScrollingMovementMethod());
 
-        scanHandler.post(scanRunnable);
+        startScanningButton = (Button) findViewById(R.id.StartScanButton);
+        startScanningButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startScanning();
+            }
+        });
+
+        stopScanningButton = (Button) findViewById(R.id.StopScanButton);
+        stopScanningButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                stopScanning();
+            }
+        });
+        stopScanningButton.setVisibility(View.INVISIBLE);
+
+
+        // init BLE
+        btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        btAdapter = btManager.getAdapter();
+        btleScanner = btAdapter.getBluetoothLeScanner();
+
+        if (btAdapter != null && !btAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        }
+
+        //scanHandler.post(scanRunnable);
+        // Make sure we have access coarse location enabled, if not, prompt the user to enable it
+        if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("This app needs location access");
+            builder.setMessage("Please grant location access so this app can detect peripherals.");
+            builder.setPositiveButton(android.R.string.ok, null);
+            builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+                }
+            });
+            builder.show();
+        }
     }
 
     @Override
@@ -82,89 +137,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    // ------------------------------------------------------------------------
-    // public usage
-    // ------------------------------------------------------------------------
-
-    private Runnable scanRunnable = new Runnable()
-    {
-        @Override
-        public void run() {
-
-            if (isScanning)
-            {
-                if (btAdapter != null)
-                {
-                    btAdapter.stopLeScan(leScanCallback);
-                }
-            }
-            else
-            {
-                if (btAdapter != null)
-                {
-                    btAdapter.startLeScan(leScanCallback);
-                }
-            }
-
-            isScanning = !isScanning;
-
-            scanHandler.postDelayed(this, scan_interval_ms);
-        }
-    };
-
-    // ------------------------------------------------------------------------
-    // Inner classes
-    // ------------------------------------------------------------------------
-
-    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback()
-    {
-        @Override
-        public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord)
-        {
-            int startByte = 2;
-            boolean patternFound = false;
-            while (startByte <= 5)
-            {
-                if (    ((int) scanRecord[startByte + 2] & 0xff) == 0x02 && //Identifies an iBeacon
-                        ((int) scanRecord[startByte + 3] & 0xff) == 0x15)
-                { //Identifies correct data length
-                    patternFound = true;
-                    break;
-                }
-                startByte++;
-            }
-
-            if (patternFound)
-            {
-                //Convert to hex String
-                byte[] uuidBytes = new byte[16];
-                System.arraycopy(scanRecord, startByte + 4, uuidBytes, 0, 16);
-                String hexString = bytesToHex(uuidBytes);
-
-                //UUID detection
-                String uuid =  hexString.substring(0,8) + "-" +
-                        hexString.substring(8,12) + "-" +
-                        hexString.substring(12,16) + "-" +
-                        hexString.substring(16,20) + "-" +
-                        hexString.substring(20,32);
-
-                // major
-                final int major = (scanRecord[startByte + 20] & 0xff) * 0x100 + (scanRecord[startByte + 21] & 0xff);
-
-                // minor
-                final int minor = (scanRecord[startByte + 22] & 0xff) * 0x100 + (scanRecord[startByte + 23] & 0xff);
-
-                // Tx Power
-                final int tx_power = (scanRecord[startByte + 24] & 0xff);
-
-                Log.i(LOG_TAG,"UUID: " +uuid + "\\nmajor: " +major +"\\nminor" +minor +"\\nrssi" +tx_power);
-                TextView tv = (TextView) findViewById(R.id.myTextView);
-                tv.setText("UUID="+uuid+"\nmajor ="+major+" minor="+minor);
-            }
-
-        }
-    };
-
     /**
      * bytesToHex method
      */
@@ -181,5 +153,116 @@ public class MainActivity extends AppCompatActivity
         return new String(hexChars);
     }
 
+    private boolean checkBeaconList(String uuid, int major, int minor)
+    {
+        beacons[0].uuid = uuid;
+        return true;
+    }
 
+    // Device scan callback.
+    private ScanCallback leScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            //peripheralTextView.append("Device Name: " + result.getDevice().getName() + " rssi: " + result.getRssi() + "\n");
+            //peripheralTextView.append("Record: "+result.getScanRecord()+"\n");
+
+            final byte[] scanRecord = result.getScanRecord().getBytes();
+
+            int startByte = 2;
+            boolean patternFound = false;
+            while (startByte <= 5) {
+                if (((int) scanRecord[startByte + 2] & 0xff) == 0x02 && //Identifies an iBeacon
+                        ((int) scanRecord[startByte + 3] & 0xff) == 0x15) { //Identifies correct data length
+                    patternFound = true;
+                    break;
+                }
+                startByte++;
+            }
+
+            if (patternFound) {
+                //Convert to hex String
+                byte[] uuidBytes = new byte[16];
+                System.arraycopy(scanRecord, startByte + 4, uuidBytes, 0, 16);
+                String hexString = bytesToHex(uuidBytes);
+
+                //UUID detection
+                String uuid = hexString.substring(0, 8) + "-" +
+                        hexString.substring(8, 12) + "-" +
+                        hexString.substring(12, 16) + "-" +
+                        hexString.substring(16, 20) + "-" +
+                        hexString.substring(20, 32);
+
+                // major
+                final int major = (scanRecord[startByte + 20] & 0xff) * 0x100 + (scanRecord[startByte + 21] & 0xff);
+
+                // minor
+                final int minor = (scanRecord[startByte + 22] & 0xff) * 0x100 + (scanRecord[startByte + 23] & 0xff);
+
+                // Tx Power
+                final int tx_power = (scanRecord[startByte + 24] & 0xff);
+
+                if (uuid.equals(d2go_uuid)) {
+                    peripheralTextView.append("uuid: " + uuid + "\nmajor: " + major + "\nminor: " + minor + "\nrssi: " + result.getRssi() + "\n");
+                }
+
+                // auto scroll for text view
+                final int scrollAmount = peripheralTextView.getLayout().getLineTop(peripheralTextView.getLineCount()) - peripheralTextView.getHeight();
+                // if there is no need to scroll, scrollAmount will be <=0
+                if (scrollAmount > 0)
+                    peripheralTextView.scrollTo(0, scrollAmount);
+            }
+        }
+    };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_COARSE_LOCATION: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    System.out.println("coarse location permission granted");
+                } else {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Functionality limited");
+                    builder.setMessage("Since location access has not been granted, this app will not be able to discover beacons when in the background.");
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                        }
+
+                    });
+                    builder.show();
+                }
+                return;
+            }
+        }
+    }
+
+    public void startScanning() {
+        System.out.println("start scanning");
+        peripheralTextView.setText("");
+        startScanningButton.setVisibility(View.INVISIBLE);
+        stopScanningButton.setVisibility(View.VISIBLE);
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                btleScanner.startScan(leScanCallback);
+            }
+        });
+    }
+
+    public void stopScanning() {
+        System.out.println("stopping scanning");
+        peripheralTextView.append("Stopped Scanning");
+        startScanningButton.setVisibility(View.VISIBLE);
+        stopScanningButton.setVisibility(View.INVISIBLE);
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                btleScanner.stopScan(leScanCallback);
+            }
+        });
+    }
 }
