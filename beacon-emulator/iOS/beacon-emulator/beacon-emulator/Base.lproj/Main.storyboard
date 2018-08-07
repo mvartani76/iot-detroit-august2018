@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" systemVersion="17A277" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -9,13 +13,162 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="beacon_emulator" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="iqc-yT-TAS">
+                                <rect key="frame" x="0.0" y="233" width="375" height="221"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SVs-J4-dBE" userLabel="BeaconUUIDTransmitStackView">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="55.5"/>
+                                        <subviews>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ncJ-45-kvH" userLabel="BeaconUUIDTransmitLabelView">
+                                                <rect key="frame" x="0.0" y="0.0" width="187.5" height="55.5"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="UUID" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jzz-7N-M5T" userLabel="BeaconUUIDTransmitLabel">
+                                                        <rect key="frame" x="99" y="0.0" width="41" height="128"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EXP-Gn-ysq" userLabel="BeaconUUIDTransmitTextView">
+                                                <rect key="frame" x="187.5" y="0.0" width="187.5" height="55.5"/>
+                                                <subviews>
+                                                    <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="QcE-dw-MoF" userLabel="TransmitBeaconUUIDTextField">
+                                                        <rect key="frame" x="107" y="0.0" width="25" height="128"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <nil key="textColor"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                        <textInputTraits key="textInputTraits"/>
+                                                    </textField>
+                                                </subviews>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </view>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="EXP-Gn-ysq" firstAttribute="width" secondItem="ncJ-45-kvH" secondAttribute="width" id="pfc-KE-erd"/>
+                                        </constraints>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bhd-jf-pI2" userLabel="BeaconMajorTransmitStackView">
+                                        <rect key="frame" x="0.0" y="55.5" width="375" height="55"/>
+                                        <subviews>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Pga-MU-YCt" userLabel="BeaconMajorTransmitLabelView">
+                                                <rect key="frame" x="0.0" y="0.0" width="187.5" height="55"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Major" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wkS-YY-mNY">
+                                                        <rect key="frame" x="98" y="0.0" width="43" height="128"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0hn-Ov-Vur" userLabel="BeaconMajorTransmitTextView">
+                                                <rect key="frame" x="187.5" y="0.0" width="187.5" height="55"/>
+                                                <subviews>
+                                                    <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Rtv-KZ-MpG" userLabel="TransmitBeaconMajorTextField">
+                                                        <rect key="frame" x="71" y="49" width="97" height="30"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <nil key="textColor"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                        <textInputTraits key="textInputTraits"/>
+                                                    </textField>
+                                                </subviews>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </view>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="0hn-Ov-Vur" firstAttribute="width" secondItem="Pga-MU-YCt" secondAttribute="width" id="V2G-8e-YzU"/>
+                                        </constraints>
+                                    </stackView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="46K-Pb-5Vs" userLabel="BeaconMinorTransmitStackView">
+                                        <rect key="frame" x="0.0" y="110.5" width="375" height="55.5"/>
+                                        <subviews>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oAe-Wh-q8H" userLabel="BeaconMinorTransmitLabelView">
+                                                <rect key="frame" x="0.0" y="0.0" width="187.5" height="55.5"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Minor" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0l4-MR-pU5">
+                                                        <rect key="frame" x="98" y="0.0" width="44" height="128"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="brU-cu-cUP" userLabel="BeaconMinorTransmitTextView">
+                                                <rect key="frame" x="187.5" y="0.0" width="187.5" height="55.5"/>
+                                                <subviews>
+                                                    <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="mDz-6L-OVf" userLabel="TransmitBeaconMinorTextField">
+                                                        <rect key="frame" x="85" y="0.0" width="69" height="128"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        <nil key="textColor"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                        <textInputTraits key="textInputTraits"/>
+                                                    </textField>
+                                                </subviews>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </view>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="brU-cu-cUP" firstAttribute="width" secondItem="oAe-Wh-q8H" secondAttribute="width" id="v1L-Vd-pgf"/>
+                                        </constraints>
+                                    </stackView>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8bL-hF-aTv" userLabel="ButtonView">
+                                        <rect key="frame" x="0.0" y="166" width="375" height="55"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8kn-6S-t8G" userLabel="TransmitStatusButton">
+                                                <rect key="frame" x="0.0" y="0.0" width="375" height="55"/>
+                                                <color key="backgroundColor" red="0.0" green="0.0" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                <state key="normal" title="Start Advertising">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="toggleAdvertisingButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Kb5-fN-cwN"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstItem="8kn-6S-t8G" firstAttribute="centerX" secondItem="8bL-hF-aTv" secondAttribute="centerX" id="09R-CU-BbI"/>
+                                            <constraint firstItem="8kn-6S-t8G" firstAttribute="width" secondItem="8bL-hF-aTv" secondAttribute="width" id="1rT-Xs-am3" userLabel="TransmitStatusButton.width = 0.7 * width"/>
+                                            <constraint firstItem="8kn-6S-t8G" firstAttribute="height" secondItem="8bL-hF-aTv" secondAttribute="height" id="YO4-2W-5X9" userLabel="TransmitStatusButton.height = 0.7 * height"/>
+                                            <constraint firstItem="8kn-6S-t8G" firstAttribute="centerY" secondItem="8bL-hF-aTv" secondAttribute="centerY" id="ckA-tT-GG5"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="46K-Pb-5Vs" firstAttribute="height" secondItem="bhd-jf-pI2" secondAttribute="height" id="WoP-uT-1YG"/>
+                                    <constraint firstItem="8bL-hF-aTv" firstAttribute="height" secondItem="46K-Pb-5Vs" secondAttribute="height" id="eiO-gE-9bo"/>
+                                    <constraint firstItem="bhd-jf-pI2" firstAttribute="height" secondItem="SVs-J4-dBE" secondAttribute="height" id="vUG-Wo-Wkb"/>
+                                </constraints>
+                            </stackView>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="iqc-yT-TAS" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="1PW-CO-ocH"/>
+                            <constraint firstItem="iqc-yT-TAS" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="213" id="9Wm-83-nuN" userLabel="Stack View.top = Safe Area.top"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="iqc-yT-TAS" secondAttribute="bottom" constant="213" id="Bxw-3w-sg9" userLabel="Safe Area.bottom = Stack View.bottom"/>
+                            <constraint firstItem="iqc-yT-TAS" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="DEj-0i-aG1"/>
+                            <constraint firstItem="iqc-yT-TAS" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="VBz-JB-zGh"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="transmitBeaconMajorTextField" destination="Rtv-KZ-MpG" id="fy2-0w-Wbg"/>
+                        <outlet property="transmitBeaconMinorTextField" destination="mDz-6L-OVf" id="Qfr-RV-fsP"/>
+                        <outlet property="transmitBeaconUUIDTextField" destination="QcE-dw-MoF" id="OJn-Yz-NvD"/>
+                        <outlet property="transmitStatusButton" destination="8kn-6S-t8G" id="NRD-rt-jff"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>

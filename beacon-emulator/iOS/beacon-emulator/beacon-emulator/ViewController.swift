@@ -10,7 +10,7 @@ import UIKit
 import CoreBluetooth
 import CoreLocation
 
-class BeaconTransmitViewController: UIViewController, CBPeripheralManagerDelegate, UITextFieldDelegate {
+class ViewController: UIViewController, CBPeripheralManagerDelegate, UITextFieldDelegate {
 
     @IBOutlet weak var transmitStatusButton: UIButton!
     @IBOutlet weak var transmitBeaconUUIDTextField: UITextField!
@@ -57,8 +57,8 @@ class BeaconTransmitViewController: UIViewController, CBPeripheralManagerDelegat
         // Adjust the keyboard/stack view height/location based on keyboard
         // Adopted from StackOverflow
         // https://stackoverflow.com/questions/26070242/move-view-with-keyboard-using-swift
-        NotificationCenter.default.addObserver(self, selector: #selector(BeaconTransmitViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(BeaconTransmitViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
     }
 
