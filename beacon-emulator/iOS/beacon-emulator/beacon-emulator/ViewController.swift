@@ -17,6 +17,7 @@ class ViewController: UIViewController, CBPeripheralManagerDelegate, UITextField
     @IBOutlet weak var transmitBeaconMajorTextField: UITextField!
     @IBOutlet weak var transmitBeaconMinorTextField: UITextField!
     
+    @IBOutlet weak var radarView: CCMRadarView!
     
     
     var localBeacon: CLBeaconRegion!
@@ -67,7 +68,7 @@ class ViewController: UIViewController, CBPeripheralManagerDelegate, UITextField
         gradientLayer = CAGradientLayer()
         createGradientLayer(inputViewController: self, gradientLayer: gradientLayer, startColor: UIColor.darkGray, endColor: UIColor.lightGray)
         
-        //radarView.isHidden = true
+        radarView.isHidden = true
     }
 
     @IBAction func toggleAdvertisingButton(_ sender: UIButton) {
@@ -84,7 +85,7 @@ class ViewController: UIViewController, CBPeripheralManagerDelegate, UITextField
             if localBeacon != nil {
                 stopLocalBeacon()
             }
-            //radarView.isHidden = false
+            radarView.isHidden = false
             
             let localBeaconUUID = transmitBeaconUUIDTextField.text
             let localBeaconMajor: CLBeaconMajorValue = CLBeaconMajorValue(transmitBeaconMajorTextField.text!)!
@@ -94,11 +95,11 @@ class ViewController: UIViewController, CBPeripheralManagerDelegate, UITextField
             
             beaconPeripheralData = localBeacon.peripheralData(withMeasuredPower: nil)
             peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: nil)
-            //radarView.startAnimation()
+            radarView.startAnimation()
         } else {
             stopLocalBeacon()
-            //radarView.stopAnimation()
-            //radarView.isHidden = true
+            radarView.stopAnimation()
+            radarView.isHidden = true
         }
         
     }

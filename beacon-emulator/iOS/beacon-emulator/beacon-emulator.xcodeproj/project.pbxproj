@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		22514DBC211A2A170050A81E /* RadarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22514DBB211A2A170050A81E /* RadarView.swift */; };
 		22C8E725211A126A0075091A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C8E724211A126A0075091A /* AppDelegate.swift */; };
 		22C8E727211A126A0075091A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C8E726211A126A0075091A /* ViewController.swift */; };
 		22C8E72A211A126A0075091A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 22C8E728211A126A0075091A /* Main.storyboard */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		22514DBB211A2A170050A81E /* RadarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadarView.swift; sourceTree = "<group>"; };
 		22C8E721211A126A0075091A /* beacon-emulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "beacon-emulator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		22C8E724211A126A0075091A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		22C8E726211A126A0075091A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -59,6 +61,7 @@
 				22C8E724211A126A0075091A /* AppDelegate.swift */,
 				22C8E726211A126A0075091A /* ViewController.swift */,
 				22C8E728211A126A0075091A /* Main.storyboard */,
+				22514DBB211A2A170050A81E /* RadarView.swift */,
 				22C8E738211A16640075091A /* Utility.swift */,
 				22C8E72B211A126B0075091A /* Assets.xcassets */,
 				22C8E72D211A126B0075091A /* LaunchScreen.storyboard */,
@@ -141,6 +144,7 @@
 				22C8E739211A16640075091A /* Utility.swift in Sources */,
 				22C8E727211A126A0075091A /* ViewController.swift in Sources */,
 				22C8E725211A126A0075091A /* AppDelegate.swift in Sources */,
+				22514DBC211A2A170050A81E /* RadarView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

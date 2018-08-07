@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -22,9 +23,20 @@
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="iqc-yT-TAS">
                                 <rect key="frame" x="0.0" y="20" width="375" height="647"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yJ9-XM-nsZ" userLabel="RadarView">
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yJ9-XM-nsZ" userLabel="RadarViewContainer">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="359.5"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <subviews>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1ge-SR-QRh" userLabel="RadarView" customClass="CCMRadarView" customModule="beacon_emulator" customModuleProvider="target">
+                                                <rect key="frame" x="7.5" y="17.5" width="359.5" height="323.5"/>
+                                            </view>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="1ge-SR-QRh" firstAttribute="height" secondItem="yJ9-XM-nsZ" secondAttribute="height" multiplier="0.9" id="6yr-Mw-0nv"/>
+                                            <constraint firstItem="1ge-SR-QRh" firstAttribute="centerY" secondItem="yJ9-XM-nsZ" secondAttribute="centerY" id="GBw-Pz-54X"/>
+                                            <constraint firstItem="1ge-SR-QRh" firstAttribute="centerX" secondItem="yJ9-XM-nsZ" secondAttribute="centerX" id="Qa9-tI-TdS"/>
+                                            <constraint firstItem="1ge-SR-QRh" firstAttribute="width" relation="lessThanOrEqual" secondItem="yJ9-XM-nsZ" secondAttribute="width" multiplier="0.9" id="gjc-tI-Zva"/>
+                                            <constraint firstItem="1ge-SR-QRh" firstAttribute="width" secondItem="yJ9-XM-nsZ" secondAttribute="height" multiplier="1:1" id="oP3-AI-8Qq"/>
+                                        </constraints>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SVs-J4-dBE" userLabel="BeaconUUIDTransmitStackView">
                                         <rect key="frame" x="0.0" y="359.5" width="375" height="72"/>
@@ -39,7 +51,6 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                 </subviews>
-                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstItem="Jzz-7N-M5T" firstAttribute="centerY" secondItem="ncJ-45-kvH" secondAttribute="centerY" id="2lG-1n-JnW"/>
                                                     <constraint firstItem="Jzz-7N-M5T" firstAttribute="width" secondItem="ncJ-45-kvH" secondAttribute="width" multiplier="0.9" id="HL1-dN-hFD"/>
@@ -57,7 +68,6 @@
                                                         <textInputTraits key="textInputTraits"/>
                                                     </textField>
                                                 </subviews>
-                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstItem="QcE-dw-MoF" firstAttribute="centerX" secondItem="EXP-Gn-ysq" secondAttribute="centerX" id="7xc-Yt-U8j"/>
                                                     <constraint firstItem="QcE-dw-MoF" firstAttribute="height" secondItem="EXP-Gn-ysq" secondAttribute="height" multiplier="0.9" id="JyR-xj-Bjy"/>
@@ -83,7 +93,6 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                 </subviews>
-                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstItem="wkS-YY-mNY" firstAttribute="centerY" secondItem="Pga-MU-YCt" secondAttribute="centerY" id="Oms-tS-hmM"/>
                                                     <constraint firstItem="wkS-YY-mNY" firstAttribute="centerX" secondItem="Pga-MU-YCt" secondAttribute="centerX" id="dCH-uq-z17"/>
@@ -101,7 +110,6 @@
                                                         <textInputTraits key="textInputTraits"/>
                                                     </textField>
                                                 </subviews>
-                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstItem="Rtv-KZ-MpG" firstAttribute="centerY" secondItem="0hn-Ov-Vur" secondAttribute="centerY" id="8AX-sX-9qi"/>
                                                     <constraint firstItem="Rtv-KZ-MpG" firstAttribute="height" secondItem="0hn-Ov-Vur" secondAttribute="height" multiplier="0.9" id="RY8-ZD-YF1"/>
@@ -127,7 +135,6 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                 </subviews>
-                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstItem="0l4-MR-pU5" firstAttribute="centerY" secondItem="oAe-Wh-q8H" secondAttribute="centerY" id="059-eE-LwG"/>
                                                     <constraint firstItem="0l4-MR-pU5" firstAttribute="height" secondItem="oAe-Wh-q8H" secondAttribute="height" multiplier="0.9" id="69l-gU-rzU"/>
@@ -145,7 +152,6 @@
                                                         <textInputTraits key="textInputTraits"/>
                                                     </textField>
                                                 </subviews>
-                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstItem="mDz-6L-OVf" firstAttribute="centerX" secondItem="brU-cu-cUP" secondAttribute="centerX" id="AAT-JY-XQf"/>
                                                     <constraint firstItem="mDz-6L-OVf" firstAttribute="centerY" secondItem="brU-cu-cUP" secondAttribute="centerY" id="CSs-ab-oMg"/>
@@ -172,7 +178,6 @@
                                                 </connections>
                                             </button>
                                         </subviews>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstItem="8kn-6S-t8G" firstAttribute="centerX" secondItem="8bL-hF-aTv" secondAttribute="centerX" id="09R-CU-BbI"/>
                                             <constraint firstItem="8kn-6S-t8G" firstAttribute="width" secondItem="8bL-hF-aTv" secondAttribute="width" multiplier="0.7" id="1rT-Xs-am3" userLabel="TransmitStatusButton.width = ButtonView.width"/>
@@ -200,6 +205,7 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="radarView" destination="1ge-SR-QRh" id="ff6-lW-Lik"/>
                         <outlet property="transmitBeaconMajorTextField" destination="Rtv-KZ-MpG" id="fy2-0w-Wbg"/>
                         <outlet property="transmitBeaconMinorTextField" destination="mDz-6L-OVf" id="Qfr-RV-fsP"/>
                         <outlet property="transmitBeaconUUIDTextField" destination="QcE-dw-MoF" id="OJn-Yz-NvD"/>
