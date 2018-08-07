@@ -12,6 +12,7 @@
 		22C8E72A211A126A0075091A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 22C8E728211A126A0075091A /* Main.storyboard */; };
 		22C8E72C211A126B0075091A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22C8E72B211A126B0075091A /* Assets.xcassets */; };
 		22C8E72F211A126B0075091A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 22C8E72D211A126B0075091A /* LaunchScreen.storyboard */; };
+		22C8E739211A16640075091A /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C8E738211A16640075091A /* Utility.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		22C8E72B211A126B0075091A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		22C8E72E211A126B0075091A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		22C8E730211A126B0075091A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		22C8E738211A16640075091A /* Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +59,7 @@
 				22C8E724211A126A0075091A /* AppDelegate.swift */,
 				22C8E726211A126A0075091A /* ViewController.swift */,
 				22C8E728211A126A0075091A /* Main.storyboard */,
+				22C8E738211A16640075091A /* Utility.swift */,
 				22C8E72B211A126B0075091A /* Assets.xcassets */,
 				22C8E72D211A126B0075091A /* LaunchScreen.storyboard */,
 				22C8E730211A126B0075091A /* Info.plist */,
@@ -135,6 +138,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22C8E739211A16640075091A /* Utility.swift in Sources */,
 				22C8E727211A126A0075091A /* ViewController.swift in Sources */,
 				22C8E725211A126A0075091A /* AppDelegate.swift in Sources */,
 			);
@@ -283,6 +287,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = MWUXP223CK;
 				INFOPLIST_FILE = "beacon-emulator/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -301,6 +306,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = MWUXP223CK;
 				INFOPLIST_FILE = "beacon-emulator/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
