@@ -5,6 +5,13 @@
     <!-- ble -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- if your app targets API level 21 or higher. -->
+    <uses-feature android:name="android.hardware.location.gps" />
+
+    <!--app is available to BLE-capable devices only. -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
 
     <application
         android:allowBackup="true"
