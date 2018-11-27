@@ -1,5 +1,5 @@
+
 # test BLE Scanning software
-# jcs 6/8/2014
 
 import blescan
 import sys
@@ -20,7 +20,8 @@ blescan.hci_enable_le_scan(sock)
 
 while True:
 	returnedList = blescan.parse_events(sock, 10)
-	print "----------"
 	for beacon in returnedList:
-		print beacon
+		# Only print beacon information from desired UUID
+		if (beacon.uuid == SELECTED_UUID):
+		    print "%s %i %i %i %i" % (beacon.uuid, beacon.major, beacon.minor, beacon.rssi[0], beacon.btime)
 
