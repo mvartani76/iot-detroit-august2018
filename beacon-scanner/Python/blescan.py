@@ -95,7 +95,6 @@ def hci_toggle_le_scan(sock, enable):
     cmd_pkt = struct.pack("<BB", enable, 0x00)
     bluez.hci_send_cmd(sock, OGF_LE_CTL, OCF_LE_SET_SCAN_ENABLE, cmd_pkt)
 
-
 def hci_le_set_scan_parameters(sock):
     old_filter = sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
@@ -158,24 +157,7 @@ def parse_events(sock, loop_count=100):
                     	print "\t(Unknown):", txpower
                     	rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
                     	print "\tRSSI:", rssi
-		    # build the return string
-                    Adstring = packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
-		    Adstring += ","
-		    Adstring += returnstringpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6])
-		    data['uuid'] = returnstringpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6])
-                    Adstring += ","
-		    Adstring += "%i" % returnnumberpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4])
-		    data['major'] = returnnumberpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4])
-                    Adstring += ","
-		    Adstring += "%i" % returnnumberpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2])
-		    data['minor'] = returnnumberpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2])
-                    Adstring += ","
-		    Adstring += "%i" % struct.unpack("b", pkt[report_pkt_offset -2])
-		    Adstring += ","
-		    Adstring += "%i" % struct.unpack("b", pkt[report_pkt_offset -1])
-
-
- 		    myFullList.append(Adstring)
+		    # build the list of beacon data
                     myDataList.append(BeaconData(returnstringpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6]), returnnumberpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4]), returnnumberpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2]), struct.unpack("b", pkt[report_pkt_offset -1]),int(time.time())))
                 done = True
     sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
