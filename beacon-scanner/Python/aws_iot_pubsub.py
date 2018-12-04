@@ -22,7 +22,6 @@ import argparse
 import json
 import blescan
 import sys
-
 import bluetooth._bluetooth as bluez
 
 dev_id = 0
@@ -64,6 +63,7 @@ parser.add_argument("-m", "--mode", action="store", dest="mode", default="publis
                     help="Operation modes: %s"%str(AllowedActions))
 parser.add_argument("-M", "--message", action="store", dest="message", default="Hello World!",
                     help="Message to publish")
+parser.add_argument("-mt", "--messageType", action="store", dest="messageType", default="string", help="Message Type")
 
 args = parser.parse_args()
 host = args.host
@@ -74,6 +74,7 @@ port = args.port
 useWebsocket = args.useWebsocket
 clientId = args.clientId
 topic = args.topic
+messageType = args.messageType
 
 if args.mode not in AllowedActions:
     parser.error("Unknown --mode option %s. Must be one of %s" % (args.mode, str(AllowedActions)))
@@ -133,14 +134,23 @@ while True:
 		returnedList = blescan.parse_events(sock, 10)
        		for beacon in returnedList:
                 	# Only print beacon information from desired UUID
-                	if (beacon.uuid == SELECTED_UUID):
-				message['beacon_uuid'] = beacon.uuid
+                	if (beacon.buuid == "SELECTED_UUID"):
+				message['beacon_uuid'] = beacon.buuid
 				message['beacon_major'] = beacon.major
 				message['beacon_minor'] = beacon.minor
 				message['beacon_rssi'] = beacon.rssi[0]
 				message['btime'] = beacon.btime
+				message['mac_addr'] = beacon.mac_addr
 				messageJson = json.dumps(message)
-				myAWSIoTMQTTClient.publish(topic, messageJson, 1)
-				if args.mode == 'publish':
-					print('Published topic %s: %s\n' % (topic, messageJson))
+				strMessage = str(beacon.mac_addr) + ", " + beacon.buuid + ", " + str(beacon.major) + ", " + str(beacon.minor) + ", " + str(beacon.rssi[0]) + ", " + str(beacon.btime)
+				
+				# Check the messagType argument to determine message format
+				if args.messageType == 'json':
+					myAWSIoTMQTTClient.publish(topic, messageJson, 1)
+					if args.mode == 'publish':
+						print('Published topic %s: %s\n' % (topic, messageJson))
+				else:
+					myAWSIoTMQTTClient.publish(topic, strMessage, 1)
+					if args.mode == 'publish':
+						print('Published topic %s: %s\n' % (topic, strMessage))
 	time.sleep(1)
