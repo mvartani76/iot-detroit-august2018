@@ -14,7 +14,6 @@
  * permissions and limitations under the License.
  */
  '''
-
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import logging
 import time
@@ -46,6 +45,12 @@ def customCallback(client, userdata, message):
     print(message.topic)
     print("--------------\n\n")
 
+# Custom MQTT Puback callback
+def customPubackCallback(mid):
+    print("Received PUBACK packet id: ")
+    print(mid)
+    print("++++++++++++++\n\n")
+
 
 # Read in command-line parameters
 parser = argparse.ArgumentParser()
@@ -64,6 +69,9 @@ parser.add_argument("-m", "--mode", action="store", dest="mode", default="publis
 parser.add_argument("-M", "--message", action="store", dest="message", default="Hello World!",
                     help="Message to publish")
 parser.add_argument("-mt", "--messageType", action="store", dest="messageType", default="string", help="Message Type")
+parser.add_argument("-as", "--syncType", action="store", dest="syncType", default="async", help="sync or async")
+parser.add_argument("-st", "--sleepTimer", action="store", dest="sleepTime", default=5, help="Time to sleep in main loop in seconds")
+parser.add_argument("-ud", "--uuid", action="store", dest="uuid", default=1, help="Beacon UUID")
 
 args = parser.parse_args()
 host = args.host
@@ -134,7 +142,7 @@ while True:
 		returnedList = blescan.parse_events(sock, 10)
        		for beacon in returnedList:
                 	# Only print beacon information from desired UUID
-                	if (beacon.buuid == "SELECTED_UUID"):
+                	if (beacon.buuid == args.uuid):
 				message['beacon_uuid'] = beacon.buuid
 				message['beacon_major'] = beacon.major
 				message['beacon_minor'] = beacon.minor
@@ -146,11 +154,19 @@ while True:
 				
 				# Check the messagType argument to determine message format
 				if args.messageType == 'json':
-					myAWSIoTMQTTClient.publish(topic, messageJson, 1)
+					# Check the syncType argument to determine which type of publish message to send
+					if args.syncType == 'async':
+						myAWSIoTMQTTClient.publishAsync(topic, messageJson, 1, ackCallback=customPubackCallback)
+					else:
+						myAWSIoTMQTTClient.publish(topic, messageJson, 1)
 					if args.mode == 'publish':
 						print('Published topic %s: %s\n' % (topic, messageJson))
 				else:
-					myAWSIoTMQTTClient.publish(topic, strMessage, 1)
+					# Check the syncType argument to determine which type of publish message to send
+					if args.syncType == 'async':
+						myAWSIoTMQTTClient.publishAsync(topic, strMessage, 1, ackCallback=customPubackCallback)
+					else:
+						myAWSIoTMQTTClient.publish(topic, strMessage, 1)
 					if args.mode == 'publish':
 						print('Published topic %s: %s\n' % (topic, strMessage))
-	time.sleep(1)
+	time.sleep(args.sleepTime)
