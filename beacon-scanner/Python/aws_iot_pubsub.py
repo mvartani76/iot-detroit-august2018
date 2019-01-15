@@ -157,16 +157,20 @@ while True:
 					# Check the syncType argument to determine which type of publish message to send
 					if args.syncType == 'async':
 						myAWSIoTMQTTClient.publishAsync(topic, messageJson, 1, ackCallback=customPubackCallback)
+						time.sleep(args.sleepTime)
 					else:
 						myAWSIoTMQTTClient.publish(topic, messageJson, 1)
+						time.sleep(args.sleepTime)
 					if args.mode == 'publish':
 						print('Published topic %s: %s\n' % (topic, messageJson))
 				else:
 					# Check the syncType argument to determine which type of publish message to send
 					if args.syncType == 'async':
 						myAWSIoTMQTTClient.publishAsync(topic, strMessage, 1, ackCallback=customPubackCallback)
+						time.sleep(args.sleepTime)
 					else:
 						myAWSIoTMQTTClient.publish(topic, strMessage, 1)
+						time.sleep(args.sleepTime)
 					if args.mode == 'publish':
 						print('Published topic %s: %s\n' % (topic, strMessage))
 	time.sleep(args.sleepTime)
