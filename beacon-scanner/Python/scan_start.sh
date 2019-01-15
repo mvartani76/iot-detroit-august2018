@@ -27,6 +27,19 @@ fi
 if [ ! -f ./root-CA.crt ]; then
   printf "\nDownloading AWS IoT Root CA certificate from AWS...\n"
   curl https://www.amazontrust.com/repository/AmazonRootCA1.pem > root-CA.crt
+else
+  printf "Checking to see if there is data...\n"
+  # Check to see if root CA file has data
+  if [ -s "root-CA.crt" ]; then
+    printf "Existing root-CA.crt is not empty...\n"
+  else
+    rm root-CA.crt
+    # Update CA Certificates
+    sudo update-ca-certificates --fresh
+    # Re download AWS IoT Root CA certificate
+    curl https://www.amazontrust.com/repository/AmazonRootCA1.pem > root-CA.crt
+  fi
+  printf "Finished checking certificates...\n"
 fi
 
 # Provide write access to python dist-packages directory. This is needed to install python libraries here.
