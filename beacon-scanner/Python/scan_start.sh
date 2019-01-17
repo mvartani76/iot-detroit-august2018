@@ -55,12 +55,19 @@ if [ ! -d /usr/local/lib/python2.7/dist-packages/AWSIoTPythonSDK ]; then
 fi
 
 # It appears that Raspbian Stretch comes pre-installed with bluez 5.43 but we still need to install python-bluez
-sudo apt-get install python-bluez
+# lets check if it is installed and only try to install if not using bluez 5.43
+BT_VERSION="$(bluetoothd -v)"
+
+if (( $(awk 'BEGIN {print ("'$BT_VERSION'" >= 5.43)}') )); then
+	printf "Bluez 5.43+ already installed...\n"
+else
+	printf "Installing latest version of Bluez...\n"
+	sudo apt-get install python-bluez
+fi
 
 # run Beacon Scanner App using provided certificates
 # will populate the python command from downloaded AWS connection package start.sh
 printf "\nRunning Beacon Scanner Application...\n"
-PYTHONFILE="aws_iot_pubsub${AWSINFO}"
 
-# Initiate the python command with the desired file and arguments
-sudo python ${PYTHONFILE}
+# Initiate the python command with the desired file and arguments stored in environment variable
+sudo python $AWS_IOT_PYTHON_CMD_OPTIONS
