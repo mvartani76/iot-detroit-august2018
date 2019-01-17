@@ -22,49 +22,10 @@ import json
 import blescan
 import sys
 import bluetooth._bluetooth as bluez
+import oled
 
-# Import libraries needed for OLED display
-import Adafruit_GPIO.SPI as SPI
-import Adafruit_SSD1306
-
-from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
-
-# Initialize OLED Display
-RST = None
-# 128x32 display with hardware I2C:
-disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
-
-# Initialize library.
-disp.begin()
-
-# Clear display.
-disp.clear()
-disp.display()
-
-# Create blank image for drawing.
-# Make sure to create image with mode '1' for 1-bit color.
-width = disp.width
-height = disp.height
-image = Image.new('1', (width, height))
-
-# Get drawing object to draw on image.
-draw = ImageDraw.Draw(image)
-
-# Draw a black filled box to clear the image.
-draw.rectangle((0,0,width,height), outline=0, fill=0)
-
-# Draw some shapes.
-# First define some constants to allow easy resizing of shapes.
-padding = -2
-top = padding
-bottom = height-padding
-# Move left to right keeping track of the current x position for drawing shapes.
-x = 0
-
-# Load default font.
-font = ImageFont.load_default()
+# Initialize OLED Display Object
+oled_data = oled.init_oled()
 
 dev_id = 0
 try:
@@ -215,15 +176,6 @@ while True:
 						myAWSIoTMQTTClient.publish(topic, strMessage, 1)
 						time.sleep(args.sleepTime)
 					if args.mode == 'publish':
-						current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 						print('Published topic %s: %s\n' % (topic, strMessage))
-						# Display time and beacon information on OLED display
-						draw.rectangle((0,0,width,height), outline=0, fill=0)
-						draw.text((x, top), current_time, font=font, fill=255)
-						draw.text((x, top+8), "Major: " + str(beacon.major), font=font, fill=255)
-						draw.text((x, top+16), "Minor: " + str(beacon.minor), font=font, fill=255)
-						draw.text((x, top+25), "RSSI: " + str(beacon.rssi[0]), font=font, fill=255)
-						disp.image(image)
-						disp.display()
-						time.sleep(0.1)
+						oled.display_beacon_info(oled_data, beacon)
 	time.sleep(args.sleepTime)
