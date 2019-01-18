@@ -60,6 +60,11 @@ BT_VERSION="$(bluetoothd -v)"
 
 if (( $(awk 'BEGIN {print ("'$BT_VERSION'" >= 5.43)}') )); then
 	printf "Bluez 5.43+ already installed...\n"
+	printf "Checking to see if bluez is correctly installed...\n"
+	if [ ! -d /usr/lib/python2.7/dist-packages/bluetooth/bluez.py ]; then
+		printf "Bluez was not correctly installed...\n"
+		sudo apt-get install python-bluez
+	fi
 else
 	printf "Installing latest version of Bluez...\n"
 	sudo apt-get install python-bluez
