@@ -35,7 +35,7 @@ else
   else
     rm root-CA.crt
     # Update CA Certificates
-#    sudo update-ca-certificates --fresh
+    sudo update-ca-certificates --fresh
     # Re download AWS IoT Root CA certificate
     curl https://www.amazontrust.com/repository/AmazonRootCA1.pem > root-CA.crt
   fi
@@ -43,7 +43,7 @@ else
 fi
 
 # Provide write access to python dist-packages directory. This is needed to install python libraries here.
-#sudo chmod -R 777 /usr/local/lib/python2.7/dist-packages/
+sudo chmod -R 777 /usr/local/lib/python2.7/dist-packages/
 
 # install AWS Device SDK for Python if not already installed
 if [ ! -d /usr/local/lib/python2.7/dist-packages/AWSIoTPythonSDK ]; then
