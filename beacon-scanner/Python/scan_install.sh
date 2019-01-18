@@ -64,3 +64,7 @@ else
 	printf "Installing latest version of Bluez...\n"
 	sudo apt-get install python-bluez
 fi
+
+# set bluetooth capabilities for python to get the code to run without sudo
+printf "Setting Bluetooth Capabilities to run without sudo...\n"
+sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python2.7
