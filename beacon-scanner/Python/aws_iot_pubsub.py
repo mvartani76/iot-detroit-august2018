@@ -143,6 +143,7 @@ while True:
 	if args.mode == 'both' or args.mode == 'publish':
 		message = {}
 		# Run the BLE Scan
+		oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...")
 		returnedList = blescan.parse_events(sock, 10)
        		for beacon in returnedList:
                 	# Only print beacon information from desired UUID
