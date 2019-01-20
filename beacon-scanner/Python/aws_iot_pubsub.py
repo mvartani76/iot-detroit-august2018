@@ -143,7 +143,10 @@ while True:
 	if args.mode == 'both' or args.mode == 'publish':
 		message = {}
 		# Run the BLE Scan
+		# Display that the beacon scan is starting
 		oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...")
+		# Zero loop_count
+		loop_count = 0
 		returnedList = blescan.parse_events(sock, 10)
        		for beacon in returnedList:
                 	# Only print beacon information from desired UUID
@@ -159,24 +162,20 @@ while True:
 				
 				# Check the messagType argument to determine message format
 				if args.messageType == 'json':
-					# Check the syncType argument to determine which type of publish message to send
-					if args.syncType == 'async':
-						myAWSIoTMQTTClient.publishAsync(topic, messageJson, 1, ackCallback=customPubackCallback)
-						time.sleep(args.sleepTime)
-					else:
-						myAWSIoTMQTTClient.publish(topic, messageJson, 1)
-						time.sleep(args.sleepTime)
-					if args.mode == 'publish':
-						print('Published topic %s: %s\n' % (topic, messageJson))
+					pubmessage = messageJson
 				else:
-					# Check the syncType argument to determine which type of publish message to send
-					if args.syncType == 'async':
-						myAWSIoTMQTTClient.publishAsync(topic, strMessage, 1, ackCallback=customPubackCallback)
-						time.sleep(args.sleepTime)
-					else:
-						myAWSIoTMQTTClient.publish(topic, strMessage, 1)
-						time.sleep(args.sleepTime)
-					if args.mode == 'publish':
-						print('Published topic %s: %s\n' % (topic, strMessage))
-						oled.display_beacon_info(oled_data, beacon)
-	time.sleep(args.sleepTime)
+					pubmessage = strMessage
+
+				# Check the syncType argument to determine which type of publish message to send
+				if args.syncType == 'async':
+					myAWSIoTMQTTClient.publishAsync(topic, pubmessage, 1, ackCallback=customPubackCallback)
+				else:
+					myAWSIoTMQTTClient.publish(topic, pubmessage, 1)
+				if args.mode == 'publish':
+					print('Published topic %s: %s\n' % (topic, pubmessage))
+					print('Loop count: %d / %d\n' % (loop_count, len(returnedList)))
+					loop_count = loop_count + 1
+					oled.display_beacon_info(oled_data, beacon)
+				time.sleep(args.sleepTime)
+	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...")
+	time.sleep(1)
