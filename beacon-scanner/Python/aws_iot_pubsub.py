@@ -29,6 +29,8 @@ import os
 # Display the expression used for debug purposes
 print os.environ['BEACON_SCAN_EXPR']
 beacon_scan_expr = os.environ['BEACON_SCAN_EXPR']
+print os.environ['BEACON_UUID']
+beacon_uuid = os.environ['BEACON_UUID']
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled()
@@ -81,7 +83,6 @@ parser.add_argument("-M", "--message", action="store", dest="message", default="
 parser.add_argument("-mt", "--messageType", action="store", dest="messageType", default="string", help="Message Type")
 parser.add_argument("-as", "--syncType", action="store", dest="syncType", default="async", help="sync or async")
 parser.add_argument("-st", "--sleepTimer", action="store", dest="sleepTime", default=5, help="Time to sleep in main loop in seconds")
-parser.add_argument("-ud", "--uuid", action="store", dest="uuid", default=1, help="Beacon UUID")
 
 args = parser.parse_args()
 host = args.host
