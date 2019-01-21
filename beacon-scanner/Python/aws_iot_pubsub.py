@@ -23,6 +23,12 @@ import blescan
 import sys
 import bluetooth._bluetooth as bluez
 import oled
+import os
+
+# The main loop now uses an environment variable to determine how to filter beacon scan
+# Display the expression used for debug purposes
+print os.environ['BEACON_SCAN_EXPR']
+beacon_scan_expr = os.environ['BEACON_SCAN_EXPR']
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled()
@@ -149,8 +155,9 @@ while True:
 		loop_count = 0
 		returnedList = blescan.parse_events(sock, 10)
        		for beacon in returnedList:
-                	# Only print beacon information from desired UUID
-                	if (beacon.buuid == args.uuid):
+                	# Filter the beacon scan based on beacon_scan_expr
+			# eval() evaluates the string conditional
+                	if (eval(beacon_scan_expr)):
 				message['beacon_uuid'] = beacon.buuid
 				message['beacon_major'] = beacon.major
 				message['beacon_minor'] = beacon.minor
