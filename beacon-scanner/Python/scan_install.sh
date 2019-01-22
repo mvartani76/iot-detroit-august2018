@@ -75,15 +75,15 @@ printf "Setting Bluetooth Capabilities to run without sudo...\n"
 sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/bin/python2.7
 
 # grab oled code for Python if not alread installed
-if [ ! -d /home/pi/Documents/adafruit_oled_python ]; then
+if [ ! -d /opt/msx/Documents/adafruit_oled_python ]; then
    printf "Grabbing OLED Python Code...\n"
-   cd /home/pi/Documents/
+   cd /opt/msx/Documents/
    git clone https://github.com/mvartani76/adafruit_oled_python.git
    cd iot-detroit-august2018/beacon-scanner/Python
 fi
 
 # install oled libs
-pushd /home/pi/Documents/adafruit_oled_python
+pushd /opt/msx/Documents/adafruit_oled_python
 printf "Installing Python libs...\n"
 ./install_python_oled_libs.sh
 popd
