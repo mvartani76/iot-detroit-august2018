@@ -56,7 +56,7 @@ fi
 
 # It appears that Raspbian Stretch comes pre-installed with bluez 5.43 but we still need to install python-bluez
 # lets check if it is installed and only try to install if not using bluez 5.43
-BT_VERSION="$(bluetoothd -v)"
+BT_VERSION="$(/usr/sbin/bluetoothd -v)"
 
 if (( $(awk 'BEGIN {print ("'$BT_VERSION'" >= 5.43)}') )); then
 	printf "Bluez 5.43+ already installed...\n"
