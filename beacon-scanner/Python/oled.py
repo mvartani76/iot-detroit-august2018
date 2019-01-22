@@ -75,13 +75,14 @@ def display_beacon_info(oled, beacon):
         time.sleep(0.1)
 
 # display_beacon_scan_msg()  displays the time and a message
-def display_beacon_scan_msg(oled, msg):
+def display_beacon_scan_msg(oled, msg, code_ver):
 	oled.disp.clear()
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 	# Display time and beacon information on OLED display
 	oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
 	oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
 	oled.draw.text((oled.x, oled.top+8), msg, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+25), code_ver, font=oled.font, fill=255)
 	oled.disp.image(oled.image)
 	oled.disp.display()
 	time.sleep(0.1)

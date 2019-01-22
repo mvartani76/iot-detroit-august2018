@@ -36,6 +36,9 @@ BEACON_UUID = os.getenv("BEACON_UUID")
 print beacon_scan_expr
 print BEACON_UUID
 
+# Set the code version
+aws_iot_code_version = "1.0"
+
 # Initialize OLED Display Object
 oled_data = oled.init_oled()
 
@@ -155,7 +158,7 @@ while True:
 		message = {}
 		# Run the BLE Scan
 		# Display that the beacon scan is starting
-		oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...")
+		oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...", aws_iot_code_version)
 		# Zero loop_count
 		loop_count = 0
 		returnedList = blescan.parse_events(sock, 10)
@@ -189,5 +192,5 @@ while True:
 					loop_count = loop_count + 1
 					oled.display_beacon_info(oled_data, beacon)
 				time.sleep(args.sleepTime)
-	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...")
+	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...", aws_iot_code_version)
 	time.sleep(1)
