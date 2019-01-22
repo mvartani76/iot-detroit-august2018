@@ -88,3 +88,8 @@ printf "Installing Python libs...\n"
 ./install_python_oled_libs.sh
 popd
 
+# install dotenv code to load environment variables into python
+# Need to do for both user and sudo since script runs as root
+printf "Installing python-dotenv libraries...\n"
+sudo pip install python-dotenv
+pip install python-dotenv
