@@ -24,8 +24,9 @@ import sys
 import bluetooth._bluetooth as bluez
 import oled
 import os
+import dotenv
 from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
+load_dotenv("/opt/msx/iot-detroit-august2018/beacon-scanner/Python/.env", override=True, verbose=True)
 
 # The main loop now uses an environment variable to determine how to filter beacon scan
 # Display the expression used for debug purposes
