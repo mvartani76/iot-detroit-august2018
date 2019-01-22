@@ -24,29 +24,15 @@ import sys
 import bluetooth._bluetooth as bluez
 import oled
 import os
-#from dotenv import Dotenv
-#dotenv = Dotenv(".env") # Of course, replace by your correct path
-#os.environ.update(dotenv)
-#from dotenv import load_dotenv
-#load_dotenv(verbose=True)
-
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
-
+# The main loop now uses an environment variable to determine how to filter beacon scan
+# Display the expression used for debug purposes
 beacon_scan_expr = os.getenv("BEACON_SCAN_EXPR")
 BEACON_UUID = os.getenv("BEACON_UUID")
 
-# The main loop now uses an environment variable to determine how to filter beacon scan
-# Display the expression used for debug purposes
-#print os.environ['BEACON_SCAN_EXPR']
-#beacon_scan_expr = os.environ['BEACON_SCAN_EXPR']
-#print os.environ['BEACON_UUID']
-#beacon_uuid = os.environ['BEACON_UUID']
-
 print beacon_scan_expr
-print type(beacon_scan_expr)
-beacon_scan_expr = str(beacon_scan_expr)
 print BEACON_UUID
 
 # Initialize OLED Display Object
