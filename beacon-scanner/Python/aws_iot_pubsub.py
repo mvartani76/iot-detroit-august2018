@@ -37,7 +37,7 @@ print beacon_scan_expr
 print BEACON_UUID
 
 # Set the code version
-aws_iot_code_version = "1.0"
+aws_iot_code_version = "1.1"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled()
@@ -46,9 +46,10 @@ dev_id = 0
 try:
         sock = bluez.hci_open_dev(dev_id)
         print "ble thread started"
-
+	oled.display_general_msg(oled_data, "BLE Thread Started", "", "", 1)
 except:
         print "error accessing bluetooth device..."
+	oled.display_general_msg(oled_data, "Bluetooth Error", "", "", 1)
         sys.exit(1)
 
 blescan.hci_le_set_scan_parameters(sock)
@@ -129,6 +130,7 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 # Init AWSIoTMQTTClient
+oled.display_general_msg(oled_data, "Init AWS IoT...", "", "", 1)
 myAWSIoTMQTTClient = None
 if useWebsocket:
     myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId, useWebsocket=True)
@@ -147,6 +149,7 @@ myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 # Connect and subscribe to AWS IoT
+oled.display_general_msg(oled_data, "Connecting to AWS IoT...", "", "", 1)
 myAWSIoTMQTTClient.connect()
 if args.mode == 'both' or args.mode == 'subscribe':
     myAWSIoTMQTTClient.subscribe(topic, 1, customCallback)
