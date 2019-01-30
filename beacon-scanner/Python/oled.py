@@ -1,4 +1,9 @@
 import time
+import os
+import socket
+import signal
+import subprocess
+
 # Import libraries needed for OLED display
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
@@ -20,12 +25,18 @@ class OledData(object):
 	self.font = font
 	self.disp = disp
 
-
-def init_oled():
+def init_oled(disp_height=32):
 	# Initialize OLED Display
 	RST = None
-	# 128x32 display with hardware I2C:
-	disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
+	if (disp_height == 32):
+		# 128x32 display with hardware I2C:
+		disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
+	elif (disp_height == 64):
+		# 128x64 display with hardware I2C:
+		disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+	else:
+		print("Invalid OLED Config...")
+		exit(1)
 
 	# Initialize library.
 	disp.begin()
@@ -61,15 +72,27 @@ def init_oled():
 	oled = OledData(width, height, image, draw, padding, top, bottom, x, font, disp)
 	return oled
 
+# function to get the ip address
+def get_ip_addr():
+	ip_addr = (([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [[(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) + ["no IP found"])[0]
+	return ip_addr
+
 # display_beacon_info() displays the time, major, minor, and rssi
-def display_beacon_info(oled, beacon):
+def display_beacon_info(oled, beacon, code_ver):
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
+
+	# Get the ip address
+	ip_addr = get_ip_addr()
+
 	# Display time and beacon information on OLED display
-        oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
-        oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
-        oled.draw.text((oled.x, oled.top+8), "Major: " + str(beacon.major), font=oled.font, fill=255)
-        oled.draw.text((oled.x, oled.top+16), "Minor: " + str(beacon.minor), font=oled.font, fill=255)
-        oled.draw.text((oled.x, oled.top+25), "RSSI: " + str(beacon.rssi[0]), font=oled.font, fill=255)
+	oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
+	oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
+ 	oled.draw.text((oled.x, oled.top+16), "Major: " + str(beacon.major), font=oled.font, fill=255)
+ 	oled.draw.text((oled.x, oled.top+24), "Minor: " + str(beacon.minor), font=oled.font, fill=255)
+ 	oled.draw.text((oled.x, oled.top+32), "RSSI: " + str(beacon.rssi[0]), font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+40), code_ver, font=oled.font, fill=255)
+
         oled.disp.image(oled.image)
         oled.disp.display()
         time.sleep(0.1)
@@ -78,11 +101,16 @@ def display_beacon_info(oled, beacon):
 def display_beacon_scan_msg(oled, msg, code_ver):
 	oled.disp.clear()
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
+
+	# Get the ip address
+	ip_addr = get_ip_addr()
+
 	# Display time and beacon information on OLED display
 	oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
 	oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+8), msg, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+25), code_ver, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+16), msg, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+40), code_ver, font=oled.font, fill=255)
 	oled.disp.image(oled.image)
 	oled.disp.display()
 	time.sleep(0.1)
