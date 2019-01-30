@@ -37,10 +37,10 @@ print beacon_scan_expr
 print BEACON_UUID
 
 # Set the code version
-aws_iot_code_version = "1.1"
+aws_iot_code_version = "1.2"
 
 # Initialize OLED Display Object
-oled_data = oled.init_oled()
+oled_data = oled.init_oled(64)
 
 dev_id = 0
 try:
@@ -193,7 +193,7 @@ while True:
 					print('Published topic %s: %s\n' % (topic, pubmessage))
 					print('Loop count: %d / %d\n' % (loop_count, len(returnedList)))
 					loop_count = loop_count + 1
-					oled.display_beacon_info(oled_data, beacon)
+					oled.display_beacon_info(oled_data, beacon, aws_iot_code_version)
 				time.sleep(args.sleepTime)
 	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...", aws_iot_code_version)
 	time.sleep(1)
