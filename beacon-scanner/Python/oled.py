@@ -118,12 +118,17 @@ def display_beacon_scan_msg(oled, msg, code_ver):
 def display_general_msg(oled, msg1, msg2, msg3, delay):
 	oled.disp.clear()
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
+
+	# Get the ip address
+	ip_addr = get_ip_addr()
+
 	# Display time and msgs on OLED display
         oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
-        oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
-        oled.draw.text((oled.x, oled.top+8), msg1, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+16), msg2, font=oled.font, fill=255)
-        oled.draw.text((oled.x, oled.top+25), msg3, font=oled.font, fill=255)
-        oled.disp.image(oled.image)
-        oled.disp.display()
-        time.sleep(delay)
+	oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+16), msg1, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+24), msg2, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+32), msg3, font=oled.font, fill=255)
+	oled.disp.image(oled.image)
+	oled.disp.display()
+	time.sleep(delay)
