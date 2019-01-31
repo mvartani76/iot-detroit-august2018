@@ -130,7 +130,7 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 # Init AWSIoTMQTTClient
-oled.display_general_msg(oled_data, "Init AWS IoT...", "", "", 1)
+oled.display_general_msg(oled_data, "Init AWS IoT...", clientId, "", 1)
 myAWSIoTMQTTClient = None
 if useWebsocket:
     myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId, useWebsocket=True)
@@ -149,7 +149,7 @@ myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 # Connect and subscribe to AWS IoT
-oled.display_general_msg(oled_data, "Connecting to AWS IoT...", "", "", 1)
+oled.display_general_msg(oled_data, "Connecting to AWS IoT...", clientId, "", 1)
 myAWSIoTMQTTClient.connect()
 if args.mode == 'both' or args.mode == 'subscribe':
     myAWSIoTMQTTClient.subscribe(topic, 1, customCallback)
