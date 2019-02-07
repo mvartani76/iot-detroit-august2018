@@ -14,6 +14,10 @@
  * permissions and limitations under the License.
  */
  '''
+try:
+    import httplib
+except:
+    import http.client as httplib
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import logging
 import time
@@ -28,6 +32,17 @@ import dotenv
 from dotenv import load_dotenv, find_dotenv
 load_dotenv("/opt/msx/iot-detroit-august2018/beacon-scanner/Python/.env", override=True, verbose=True)
 
+# Function that checks to see if there is an internet connection
+def have_internet():
+    conn = httplib.HTTPConnection("www.google.com", timeout=5)
+    try:
+        conn.request("HEAD", "/")
+        conn.close()
+        return True
+    except:
+        conn.close()
+        return False
+
 # The main loop now uses an environment variable to determine how to filter beacon scan
 # Display the expression used for debug purposes
 beacon_scan_expr = os.getenv("BEACON_SCAN_EXPR")
@@ -37,7 +52,7 @@ print beacon_scan_expr
 print BEACON_UUID
 
 # Set the code version
-aws_iot_code_version = "1.2"
+aws_iot_code_version = "1.3"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
@@ -149,8 +164,17 @@ myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 # Connect and subscribe to AWS IoT
-oled.display_general_msg(oled_data, "Connecting to AWS IoT...", clientId, "", 1)
-myAWSIoTMQTTClient.connect()
+try:
+	oled.display_general_msg(oled_data, "Connecting to AWS IoT...", clientId, "", 1)
+	myAWSIoTMQTTClient.connect()
+except:
+	oled.display_general_msg(oled_data, "Could not connect to AWS...", "Checking Internet...", clientId, 1)
+	if have_internet():
+		oled.display_general_msg(oled_data, "Could not connect to AWS...", "Internet OK...", clientId, 1)
+	else:
+		oled.display_general_msg(oled_data, "Could not connect to AWS...", "No Internet...", clientId, 1)
+	exit(1)
+
 if args.mode == 'both' or args.mode == 'subscribe':
     myAWSIoTMQTTClient.subscribe(topic, 1, customCallback)
 time.sleep(2)
@@ -186,7 +210,17 @@ while True:
 
 				# Check the syncType argument to determine which type of publish message to send
 				if args.syncType == 'async':
-					myAWSIoTMQTTClient.publishAsync(topic, pubmessage, 1, ackCallback=customPubackCallback)
+					# Perform some simple error catching on publish command
+					# MQTT Broker handles offline queueing so not sure when we would see error
+					try:
+						oled.display_general_msg(oled_data, "Publishing AWS MQTT...", clientId, "", 1)
+						myAWSIoTMQTTClient.publishAsync(topic, pubmessage, 1, ackCallback=customPubackCallback)
+					except:
+						oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, 1)
+						# exit out of the program if no internet
+						if (not(have_internet())):
+							oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, 1)
+							exit(1)
 				else:
 					myAWSIoTMQTTClient.publish(topic, pubmessage, 1)
 				if args.mode == 'publish':
