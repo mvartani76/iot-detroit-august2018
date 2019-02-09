@@ -77,9 +77,7 @@ def status_sub_callback(client, userdata, message):
 	p_obj = json.loads(message.payload)
 	if p_obj["device"] == hostname:
 		print(p_obj["device"])
-		print(clientId)
 		print(message.payload)
-		print(status_ack_topic)
 		oled.display_general_msg(oled_data, "Received  Message", "", "", 5)
 		myAWSIoTMQTTClient.publishAsync(status_ack_topic, "all good", 1, ackCallback=customPubackCallback)
 
@@ -88,7 +86,6 @@ def customPubackCallback(mid):
     print("Received PUBACK packet id: ")
     print(mid)
     print("++++++++++++++\n\n")
-
 
 # Read in command-line parameters
 parser = argparse.ArgumentParser()
@@ -102,8 +99,6 @@ parser.add_argument("-w", "--websocket", action="store_true", dest="useWebsocket
 parser.add_argument("-t", "--topic", action="store", dest="topic", default="beacon", help="Targeted topic")
 parser.add_argument("-srt", "--statrxtopic", action="store", dest="status_rx_topic", default="beacon_status_rx", help="Subscribe Topic")
 parser.add_argument("-sat", "--statacktopic", action="store", dest="status_ack_topic", default="beacon_status_ack", help="Ack Topic")
-parser.add_argument("-M", "--message", action="store", dest="message", default="Hello World!",
-                    help="Message to publish")
 parser.add_argument("-mt", "--messageType", action="store", dest="messageType", default="string", help="Message Type")
 parser.add_argument("-as", "--syncType", action="store", dest="syncType", default="async", help="sync or async")
 parser.add_argument("-st", "--sleepTimer", action="store", dest="sleepTime", default=5, help="Time to sleep in main loop in seconds")
