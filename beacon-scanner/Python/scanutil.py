@@ -27,7 +27,11 @@ def have_internet():
 
 # Simple function to check WiFi RSSI
 def get_wifi_rssi(wifi_interface):
-	cmd = "iwconfig " + wifi_interface + " | grep Signal | /usr/bin/awk '{print $4}' | /usr/bin/cut -d'=' -f2"
-	return os.popen(cmd).read()
+	try:
+		cmd = "iwconfig " + wifi_interface + " | grep Signal | /usr/bin/awk '{print $4}' | /usr/bin/cut -d'=' -f2"
+		return os.popen(cmd).read()
+	except:
+		print("WiFi RSSI Error... Exiting...")
+		exit(1)
 
 
