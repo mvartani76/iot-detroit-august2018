@@ -40,7 +40,7 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.3"
+aws_iot_code_version = "1.4"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
