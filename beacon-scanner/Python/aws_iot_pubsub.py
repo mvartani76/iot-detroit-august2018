@@ -44,12 +44,10 @@ def have_internet():
         return False
 
 # The main loop now uses an environment variable to determine how to filter beacon scan
-# Display the expression used for debug purposes
 beacon_scan_expr = os.getenv("BEACON_SCAN_EXPR")
 BEACON_UUID = os.getenv("BEACON_UUID")
-
-print beacon_scan_expr
-print BEACON_UUID
+# get the hostname
+hostname = os.uname()[1]
 
 # Set the code version
 aws_iot_code_version = "1.3"
@@ -73,12 +71,17 @@ blescan.hci_enable_le_scan(sock)
 AllowedActions = ['both', 'publish', 'subscribe']
 
 # Custom MQTT message callback
-def customCallback(client, userdata, message):
-    print("Received a new message: ")
-    print(message.payload)
-    print("from topic: ")
-    print(message.topic)
-    print("--------------\n\n")
+def status_sub_callback(client, userdata, message):
+	# convert message.payload to json object
+	p_obj = json.loads(message.payload)
+	if p_obj["device"] == hostname:
+		print(p_obj["device"])
+		print(clientId)
+		print(message.payload)
+		print(status_ack_topic)
+		oled.display_general_msg(oled_data, "Received  Message", "", "", 5)
+		myAWSIoTMQTTClient.publishAsync(status_ack_topic, "all good", 1, ackCallback=customPubackCallback)
+
 
 # Custom MQTT Puback callback
 def customPubackCallback(mid):
@@ -99,6 +102,8 @@ parser.add_argument("-w", "--websocket", action="store_true", dest="useWebsocket
 parser.add_argument("-id", "--clientId", action="store", dest="clientId", default="basicPubSub",
                     help="Targeted client id")
 parser.add_argument("-t", "--topic", action="store", dest="topic", default="beacon", help="Targeted topic")
+parser.add_argument("-srt", "--statrxtopic", action="store", dest="status_rx_topic", default="beacon_status_rx", help="Subscribe Topic")
+parser.add_argument("-sat", "--statacktopic", action="store", dest="status_ack_topic", default="beacon_status_ack", help="Ack Topic")
 parser.add_argument("-m", "--mode", action="store", dest="mode", default="publish",
                     help="Operation modes: %s"%str(AllowedActions))
 parser.add_argument("-M", "--message", action="store", dest="message", default="Hello World!",
@@ -116,6 +121,8 @@ port = args.port
 useWebsocket = args.useWebsocket
 clientId = args.clientId
 topic = args.topic
+status_rx_topic = args.status_rx_topic
+status_ack_topic = args.status_ack_topic
 messageType = args.messageType
 
 if args.mode not in AllowedActions:
@@ -176,7 +183,9 @@ except:
 	exit(1)
 
 if args.mode == 'both' or args.mode == 'subscribe':
-    myAWSIoTMQTTClient.subscribe(topic, 1, customCallback)
+    print(args.mode)
+    print(status_rx_topic)
+    myAWSIoTMQTTClient.subscribe(status_rx_topic, 1, status_sub_callback)
 time.sleep(2)
 
 # Publish to the same topic in a loop forever
@@ -223,7 +232,7 @@ while True:
 							exit(1)
 				else:
 					myAWSIoTMQTTClient.publish(topic, pubmessage, 1)
-				if args.mode == 'publish':
+				if args.mode == 'both' or args.mode == 'publish':
 					print('Published topic %s: %s\n' % (topic, pubmessage))
 					print('Loop count: %d / %d\n' % (loop_count, len(returnedList)))
 					loop_count = loop_count + 1
