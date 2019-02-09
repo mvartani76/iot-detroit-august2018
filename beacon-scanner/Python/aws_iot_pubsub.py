@@ -1,5 +1,4 @@
-'''
-/*
+''' /*
  * Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -68,8 +67,6 @@ except:
 blescan.hci_le_set_scan_parameters(sock)
 blescan.hci_enable_le_scan(sock)
 
-AllowedActions = ['both', 'publish', 'subscribe']
-
 # Custom MQTT message callback
 def status_sub_callback(client, userdata, message):
 	# convert message.payload to json object
@@ -81,7 +78,6 @@ def status_sub_callback(client, userdata, message):
 		print(status_ack_topic)
 		oled.display_general_msg(oled_data, "Received  Message", "", "", 5)
 		myAWSIoTMQTTClient.publishAsync(status_ack_topic, "all good", 1, ackCallback=customPubackCallback)
-
 
 # Custom MQTT Puback callback
 def customPubackCallback(mid):
@@ -104,8 +100,6 @@ parser.add_argument("-id", "--clientId", action="store", dest="clientId", defaul
 parser.add_argument("-t", "--topic", action="store", dest="topic", default="beacon", help="Targeted topic")
 parser.add_argument("-srt", "--statrxtopic", action="store", dest="status_rx_topic", default="beacon_status_rx", help="Subscribe Topic")
 parser.add_argument("-sat", "--statacktopic", action="store", dest="status_ack_topic", default="beacon_status_ack", help="Ack Topic")
-parser.add_argument("-m", "--mode", action="store", dest="mode", default="publish",
-                    help="Operation modes: %s"%str(AllowedActions))
 parser.add_argument("-M", "--message", action="store", dest="message", default="Hello World!",
                     help="Message to publish")
 parser.add_argument("-mt", "--messageType", action="store", dest="messageType", default="string", help="Message Type")
@@ -124,10 +118,6 @@ topic = args.topic
 status_rx_topic = args.status_rx_topic
 status_ack_topic = args.status_ack_topic
 messageType = args.messageType
-
-if args.mode not in AllowedActions:
-    parser.error("Unknown --mode option %s. Must be one of %s" % (args.mode, str(AllowedActions)))
-    exit(2)
 
 if args.useWebsocket and args.certificatePath and args.privateKeyPath:
     parser.error("X.509 cert authentication and WebSocket are mutual exclusive. Please pick one.")
@@ -182,61 +172,63 @@ except:
 		oled.display_general_msg(oled_data, "Could not connect to AWS...", "No Internet...", clientId, 1)
 	exit(1)
 
-if args.mode == 'both' or args.mode == 'subscribe':
-    print(args.mode)
-    print(status_rx_topic)
-    myAWSIoTMQTTClient.subscribe(status_rx_topic, 1, status_sub_callback)
+try:
+	oled.display_general_msg(oled_data, "Subscribing to Topic...", clientId, status_rx_topic, 1)
+	myAWSIoTMQTTClient.subscribe(status_rx_topic, 1, status_sub_callback)
+except:
+	oled.display_general_msg(oled_data, "Could not subscribe to topic...", clientId, status_rx_topic, 1)
+	exit(1)
+
 time.sleep(2)
 
 # Publish to the same topic in a loop forever
 while True:
-	if args.mode == 'both' or args.mode == 'publish':
-		message = {}
-		# Run the BLE Scan
-		# Display that the beacon scan is starting
-		oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...", aws_iot_code_version)
-		# Zero loop_count
-		loop_count = 0
-		returnedList = blescan.parse_events(sock, 10)
-       		for beacon in returnedList:
-                	# Filter the beacon scan based on beacon_scan_expr
-			# eval() evaluates the string conditional
-                	if (eval(beacon_scan_expr)):
-				message['beacon_uuid'] = beacon.buuid
-				message['beacon_major'] = beacon.major
-				message['beacon_minor'] = beacon.minor
-				message['beacon_rssi'] = beacon.rssi[0]
-				message['btime'] = beacon.btime
-				message['mac_addr'] = beacon.mac_addr
-				messageJson = json.dumps(message)
-				strMessage = str(beacon.mac_addr) + ", " + beacon.buuid + ", " + str(beacon.major) + ", " + str(beacon.minor) + ", " + str(beacon.rssi[0]) + ", " + str(beacon.btime)
+	message = {}
+	# Run the BLE Scan
+	# Display that the beacon scan is starting
+	oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...", aws_iot_code_version)
+	# Zero loop_count
+	loop_count = 0
+	returnedList = blescan.parse_events(sock, 10)
+	for beacon in returnedList:
+		# Filter the beacon scan based on beacon_scan_expr
+		# eval() evaluates the string conditional
+                if (eval(beacon_scan_expr)):
+			message['beacon_uuid'] = beacon.buuid
+			message['beacon_major'] = beacon.major
+			message['beacon_minor'] = beacon.minor
+			message['beacon_rssi'] = beacon.rssi[0]
+			message['btime'] = beacon.btime
+			message['mac_addr'] = beacon.mac_addr
+			messageJson = json.dumps(message)
+			strMessage = str(beacon.mac_addr) + ", " + beacon.buuid + ", " + str(beacon.major) + ", " + str(beacon.minor) + ", " + str(beacon.rssi[0]) + ", " + str(beacon.btime)
 				
-				# Check the messagType argument to determine message format
-				if args.messageType == 'json':
-					pubmessage = messageJson
-				else:
-					pubmessage = strMessage
+			# Check the messagType argument to determine message format
+			if args.messageType == 'json':
+				pubmessage = messageJson
+			else:
+				pubmessage = strMessage
 
-				# Check the syncType argument to determine which type of publish message to send
-				if args.syncType == 'async':
-					# Perform some simple error catching on publish command
-					# MQTT Broker handles offline queueing so not sure when we would see error
-					try:
-						oled.display_general_msg(oled_data, "Publishing AWS MQTT...", clientId, "", 1)
-						myAWSIoTMQTTClient.publishAsync(topic, pubmessage, 1, ackCallback=customPubackCallback)
-					except:
-						oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, 1)
-						# exit out of the program if no internet
-						if (not(have_internet())):
-							oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, 1)
-							exit(1)
-				else:
-					myAWSIoTMQTTClient.publish(topic, pubmessage, 1)
-				if args.mode == 'both' or args.mode == 'publish':
-					print('Published topic %s: %s\n' % (topic, pubmessage))
-					print('Loop count: %d / %d\n' % (loop_count, len(returnedList)))
-					loop_count = loop_count + 1
-					oled.display_beacon_info(oled_data, beacon, aws_iot_code_version)
-				time.sleep(args.sleepTime)
+			# Check the syncType argument to determine which type of publish message to send
+			if args.syncType == 'async':
+				# Perform some simple error catching on publish command
+				# MQTT Broker handles offline queueing so not sure when we would see error
+				try:
+					oled.display_general_msg(oled_data, "Publishing AWS MQTT...", clientId, "", 1)
+					myAWSIoTMQTTClient.publishAsync(topic, pubmessage, 1, ackCallback=customPubackCallback)
+				except:
+					oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, 1)
+					# exit out of the program if no internet
+					if (not(have_internet())):
+						oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, 1)
+						exit(1)
+			else:
+				myAWSIoTMQTTClient.publish(topic, pubmessage, 1)
+
+			print('Published topic %s: %s\n' % (topic, pubmessage))
+			print('Loop count: %d / %d\n' % (loop_count, len(returnedList)))
+			loop_count = loop_count + 1
+			oled.display_beacon_info(oled_data, beacon, aws_iot_code_version)
+			time.sleep(args.sleepTime)
 	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...", aws_iot_code_version)
 	time.sleep(1)
