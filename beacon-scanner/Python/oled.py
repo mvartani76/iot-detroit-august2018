@@ -1,6 +1,6 @@
 import time
 import os
-import socket
+import scanutil
 import signal
 import subprocess
 
@@ -72,20 +72,12 @@ def init_oled(disp_height=32):
 	oled = OledData(width, height, image, draw, padding, top, bottom, x, font, disp)
 	return oled
 
-# function to get the ip address
-def get_ip_addr():
-	try:
-		ip_addr = (([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [[(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) + ["no IP found"])[0]
-	except:
-		ip_addr = "0.0.0.0"
-	return ip_addr
-
 # display_beacon_info() displays the time, major, minor, and rssi
 def display_beacon_info(oled, beacon, code_ver):
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 
 	# Get the ip address
-	ip_addr = get_ip_addr()
+	ip_addr = scanutil.get_ip_addr()
 
 	# Display time and beacon information on OLED display
 	oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
@@ -106,7 +98,7 @@ def display_beacon_scan_msg(oled, msg, code_ver):
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 
 	# Get the ip address
-	ip_addr = get_ip_addr()
+	ip_addr = scanutil.get_ip_addr()
 
 	# Display time and beacon information on OLED display
 	oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
@@ -123,7 +115,7 @@ def display_general_msg(oled, msg1, msg2, msg3, delay):
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 
 	# Get the ip address
-	ip_addr = get_ip_addr()
+	ip_addr = scanutil.get_ip_addr()
 
 	# Display time and msgs on OLED display
         oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)

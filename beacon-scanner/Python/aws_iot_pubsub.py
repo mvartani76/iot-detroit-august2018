@@ -13,10 +13,6 @@
  * permissions and limitations under the License.
  */
  '''
-try:
-    import httplib
-except:
-    import http.client as httplib
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import logging
 import time
@@ -25,22 +21,13 @@ import json
 import blescan
 import sys
 import bluetooth._bluetooth as bluez
+import scanutil
 import oled
+import subprocess
 import os
 import dotenv
 from dotenv import load_dotenv, find_dotenv
 load_dotenv("/opt/msx/iot-detroit-august2018/beacon-scanner/Python/.env", override=True, verbose=True)
-
-# Function that checks to see if there is an internet connection
-def have_internet():
-    conn = httplib.HTTPConnection("www.google.com", timeout=5)
-    try:
-        conn.request("HEAD", "/")
-        conn.close()
-        return True
-    except:
-        conn.close()
-        return False
 
 # The main loop now uses an environment variable to determine how to filter beacon scan
 beacon_scan_expr = os.getenv("BEACON_SCAN_EXPR")
@@ -78,8 +65,14 @@ def status_sub_callback(client, userdata, message):
 	if p_obj["device"] == hostname:
 		print(p_obj["device"])
 		print(message.payload)
-		oled.display_general_msg(oled_data, "Received  Message", "", "", 5)
-		myAWSIoTMQTTClient.publishAsync(status_ack_topic, "all good", 1, ackCallback=customPubackCallback)
+		ackmsg = {}
+		ackmsg['device'] = hostname
+		ackmsg['ssid'] = subprocess.check_output("iwgetid -r", shell=True)
+		ackmsg['ipaddr'] = scanutil.get_ip_addr()
+		ackmsg['wifi_rssi'] = scanutil.get_wifi_rssi('wlan0')
+		ackjson = json.dumps(ackmsg, ensure_ascii=False)
+		oled.display_general_msg(oled_data, "Received Message", hostname, ackmsg['ssid'], 5)
+		myAWSIoTMQTTClient.publishAsync(status_ack_topic, ackjson, 1, ackCallback=customPubackCallback)
 
 # Custom MQTT Puback callback
 def customPubackCallback(mid):
@@ -162,7 +155,7 @@ try:
 	myAWSIoTMQTTClient.connect()
 except:
 	oled.display_general_msg(oled_data, "Could not connect to AWS...", "Checking Internet...", clientId, 1)
-	if have_internet():
+	if scanutil.have_internet():
 		oled.display_general_msg(oled_data, "Could not connect to AWS...", "Internet OK...", clientId, 1)
 	else:
 		oled.display_general_msg(oled_data, "Could not connect to AWS...", "No Internet...", clientId, 1)
@@ -215,7 +208,7 @@ while True:
 				except:
 					oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, 1)
 					# exit out of the program if no internet
-					if (not(have_internet())):
+					if (not(scanutil.have_internet())):
 						oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, 1)
 						exit(1)
 			else:
