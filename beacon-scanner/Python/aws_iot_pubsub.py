@@ -45,8 +45,12 @@ def have_internet():
 # The main loop now uses an environment variable to determine how to filter beacon scan
 beacon_scan_expr = os.getenv("BEACON_SCAN_EXPR")
 BEACON_UUID = os.getenv("BEACON_UUID")
+
 # get the hostname
 hostname = os.uname()[1]
+
+# Set the clientId to hostname
+clientId = hostname
 
 # Set the code version
 aws_iot_code_version = "1.3"
@@ -95,8 +99,6 @@ parser.add_argument("-k", "--key", action="store", dest="privateKeyPath", help="
 parser.add_argument("-p", "--port", action="store", dest="port", type=int, help="Port number override")
 parser.add_argument("-w", "--websocket", action="store_true", dest="useWebsocket", default=False,
                     help="Use MQTT over WebSocket")
-parser.add_argument("-id", "--clientId", action="store", dest="clientId", default="basicPubSub",
-                    help="Targeted client id")
 parser.add_argument("-t", "--topic", action="store", dest="topic", default="beacon", help="Targeted topic")
 parser.add_argument("-srt", "--statrxtopic", action="store", dest="status_rx_topic", default="beacon_status_rx", help="Subscribe Topic")
 parser.add_argument("-sat", "--statacktopic", action="store", dest="status_ack_topic", default="beacon_status_ack", help="Ack Topic")
@@ -113,7 +115,6 @@ certificatePath = args.certificatePath
 privateKeyPath = args.privateKeyPath
 port = args.port
 useWebsocket = args.useWebsocket
-clientId = args.clientId
 topic = args.topic
 status_rx_topic = args.status_rx_topic
 status_ack_topic = args.status_ack_topic
