@@ -40,7 +40,7 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.4"
+aws_iot_code_version = "1.5"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
@@ -49,10 +49,10 @@ dev_id = 0
 try:
         sock = bluez.hci_open_dev(dev_id)
         print "ble thread started"
-	oled.display_general_msg(oled_data, "BLE Thread Started", "", "", 1)
+	oled.display_general_msg(oled_data, "BLE Thread Started", "", "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 except:
         print "error accessing bluetooth device..."
-	oled.display_general_msg(oled_data, "Bluetooth Error", "", "", 1)
+	oled.display_general_msg(oled_data, "Bluetooth Error", "", "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
         sys.exit(1)
 
 blescan.hci_le_set_scan_parameters(sock)
@@ -71,7 +71,7 @@ def status_sub_callback(client, userdata, message):
 		ackmsg['ipaddr'] = scanutil.get_ip_addr()
 		ackmsg['wifi_rssi'] = scanutil.get_wifi_rssi('wlan0')
 		ackjson = json.dumps(ackmsg, ensure_ascii=False)
-		oled.display_general_msg(oled_data, "Received Message", hostname, ackmsg['ssid'], 5)
+		oled.display_general_msg(oled_data, "Received Message", hostname, ackmsg['ssid'], "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 5)
 		myAWSIoTMQTTClient.publishAsync(status_ack_topic, ackjson, 1, ackCallback=customPubackCallback)
 
 # Custom MQTT Puback callback
@@ -131,7 +131,7 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 # Init AWSIoTMQTTClient
-oled.display_general_msg(oled_data, "Init AWS IoT...", clientId, "", 1)
+oled.display_general_msg(oled_data, "Init AWS IoT...", clientId, "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 myAWSIoTMQTTClient = None
 if useWebsocket:
     myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId, useWebsocket=True)
@@ -151,21 +151,21 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 # Connect and subscribe to AWS IoT
 try:
-	oled.display_general_msg(oled_data, "Connecting to AWS IoT...", clientId, "", 1)
+	oled.display_general_msg(oled_data, "Connecting to AWS IoT...", clientId, "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 	myAWSIoTMQTTClient.connect()
 except:
-	oled.display_general_msg(oled_data, "Could not connect to AWS...", "Checking Internet...", clientId, 1)
+	oled.display_general_msg(oled_data, "Could not connect to AWS...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 	if scanutil.have_internet():
-		oled.display_general_msg(oled_data, "Could not connect to AWS...", "Internet OK...", clientId, 1)
+		oled.display_general_msg(oled_data, "Could not connect to AWS...", "Internet OK...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 	else:
-		oled.display_general_msg(oled_data, "Could not connect to AWS...", "No Internet...", clientId, 1)
+		oled.display_general_msg(oled_data, "Could not connect to AWS...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 	exit(1)
 
 try:
-	oled.display_general_msg(oled_data, "Subscribing to Topic...", clientId, status_rx_topic, 1)
+	oled.display_general_msg(oled_data, "Subscribing to Topic...", clientId, status_rx_topic, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 	myAWSIoTMQTTClient.subscribe(status_rx_topic, 1, status_sub_callback)
 except:
-	oled.display_general_msg(oled_data, "Could not subscribe to topic...", clientId, status_rx_topic, 1)
+	oled.display_general_msg(oled_data, "Could not subscribe to topic...", clientId, status_rx_topic, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 	exit(1)
 
 time.sleep(2)
@@ -175,7 +175,7 @@ while True:
 	message = {}
 	# Run the BLE Scan
 	# Display that the beacon scan is starting
-	oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...", aws_iot_code_version)
+	oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 0.1)
 	# Zero loop_count
 	loop_count = 0
 	returnedList = blescan.parse_events(sock, 10)
@@ -203,13 +203,13 @@ while True:
 				# Perform some simple error catching on publish command
 				# MQTT Broker handles offline queueing so not sure when we would see error
 				try:
-					oled.display_general_msg(oled_data, "Publishing AWS MQTT...", clientId, "", 1)
+					oled.display_general_msg(oled_data, "Publishing AWS MQTT...", clientId, "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 					myAWSIoTMQTTClient.publishAsync(topic, pubmessage, 1, ackCallback=customPubackCallback)
 				except:
-					oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, 1)
+					oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 					# exit out of the program if no internet
 					if (not(scanutil.have_internet())):
-						oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, 1)
+						oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 						exit(1)
 			else:
 				myAWSIoTMQTTClient.publish(topic, pubmessage, 1)
@@ -217,7 +217,6 @@ while True:
 			print('Published topic %s: %s\n' % (topic, pubmessage))
 			print('Loop count: %d / %d\n' % (loop_count, len(returnedList)))
 			loop_count = loop_count + 1
-			oled.display_beacon_info(oled_data, beacon, aws_iot_code_version)
+			oled.display_beacon_info(oled_data, beacon, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 0.1)
 			time.sleep(args.sleepTime)
-	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...", aws_iot_code_version)
-	time.sleep(1)
+	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1.1)
