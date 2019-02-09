@@ -73,7 +73,7 @@ def init_oled(disp_height=32):
 	return oled
 
 # display_beacon_info() displays the time, major, minor, and rssi
-def display_beacon_info(oled, beacon, code_ver):
+def display_beacon_info(oled, beacon, msg, code_ver, delay):
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 
 	# Get the ip address
@@ -86,14 +86,15 @@ def display_beacon_info(oled, beacon, code_ver):
  	oled.draw.text((oled.x, oled.top+16), "Major: " + str(beacon.major), font=oled.font, fill=255)
  	oled.draw.text((oled.x, oled.top+24), "Minor: " + str(beacon.minor), font=oled.font, fill=255)
  	oled.draw.text((oled.x, oled.top+32), "RSSI: " + str(beacon.rssi[0]), font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+40), code_ver, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+40), msg, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+48), code_ver, font=oled.font, fill=255)
 
         oled.disp.image(oled.image)
         oled.disp.display()
-        time.sleep(0.1)
+        time.sleep(delay)
 
 # display_beacon_scan_msg()  displays the time and a message
-def display_beacon_scan_msg(oled, msg, code_ver):
+def display_beacon_scan_msg(oled, msg1, msg2, code_ver, delay):
 	oled.disp.clear()
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 
@@ -104,13 +105,14 @@ def display_beacon_scan_msg(oled, msg, code_ver):
 	oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
 	oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
 	oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+16), msg, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+40), code_ver, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+16), msg1, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+40), msg2, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+48), code_ver, font=oled.font, fill=255)
 	oled.disp.image(oled.image)
 	oled.disp.display()
-	time.sleep(0.1)
+	time.sleep(delay)
 
-def display_general_msg(oled, msg1, msg2, msg3, delay):
+def display_general_msg(oled, msg1, msg2, msg3, msg4, code_ver, delay):
 	oled.disp.clear()
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 
@@ -124,6 +126,8 @@ def display_general_msg(oled, msg1, msg2, msg3, delay):
 	oled.draw.text((oled.x, oled.top+16), msg1, font=oled.font, fill=255)
 	oled.draw.text((oled.x, oled.top+24), msg2, font=oled.font, fill=255)
 	oled.draw.text((oled.x, oled.top+32), msg3, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+40), msg4, font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+48), code_ver, font=oled.font, fill=255)
 	oled.disp.image(oled.image)
 	oled.disp.display()
 	time.sleep(delay)
