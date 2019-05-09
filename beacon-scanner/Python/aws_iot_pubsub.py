@@ -40,7 +40,7 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.5"
+aws_iot_code_version = "1.6"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
@@ -95,6 +95,7 @@ parser.add_argument("-sat", "--statacktopic", action="store", dest="status_ack_t
 parser.add_argument("-mt", "--messageType", action="store", dest="messageType", default="string", help="Message Type")
 parser.add_argument("-as", "--syncType", action="store", dest="syncType", default="async", help="sync or async")
 parser.add_argument("-st", "--sleepTimer", action="store", dest="sleepTime", default=5, help="Time to sleep in main loop in seconds")
+parser.add_argument("-lc", "--loopCount", action="store", dest="loopCount", default=100, help="Loop Count for BLE Prase")
 
 args = parser.parse_args()
 host = args.host
@@ -107,6 +108,7 @@ topic = args.topic
 status_rx_topic = args.status_rx_topic
 status_ack_topic = args.status_ack_topic
 messageType = args.messageType
+parse_loop_count = args.loopCount
 
 if args.useWebsocket and args.certificatePath and args.privateKeyPath:
     parser.error("X.509 cert authentication and WebSocket are mutual exclusive. Please pick one.")
@@ -178,7 +180,7 @@ while True:
 	oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 0.1)
 	# Zero loop_count
 	loop_count = 0
-	returnedList = blescan.parse_events(sock, 10)
+	returnedList = blescan.parse_events(sock, parse_loop_count)
 	for beacon in returnedList:
 		# Filter the beacon scan based on beacon_scan_expr
 		# eval() evaluates the string conditional
