@@ -22,6 +22,7 @@ import bluetooth._bluetooth as bluez
 import uuid
 import time
 import re
+import scanutil
 
 LE_META_EVENT = 0x3e
 LE_PUBLIC_ADDRESS=0x00
@@ -57,10 +58,6 @@ class BeaconData(object):
 	self.rssi = rssi
         self.btime = btime
 	self.mac_addr = mac_addr
-
-# Function reads the host wifi mac address and returns as formatted string
-def display_mac_addr():
-	return ":".join(re.findall("..", "%012x" % uuid.getnode()))
 
 def returnnumberpacket(pkt):
     myInteger = 0
@@ -164,7 +161,7 @@ def parse_events(sock, loop_count=100):
                     	rssi, = struct.unpack("b", pkt[report_pkt_offset -1])
                     	print "\tRSSI:", rssi
 		    # build the list of beacon data
-                    myDataList.append(BeaconData(returnstringpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6]), returnnumberpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4]), returnnumberpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2]), struct.unpack("b", pkt[report_pkt_offset -1]),int(time.time()), display_mac_addr()))
+                    myDataList.append(BeaconData(returnstringpacket(pkt[report_pkt_offset -22: report_pkt_offset - 6]), returnnumberpacket(pkt[report_pkt_offset -6: report_pkt_offset - 4]), returnnumberpacket(pkt[report_pkt_offset -4: report_pkt_offset - 2]), struct.unpack("b", pkt[report_pkt_offset -1]),int(time.time()), scanutil.display_mac_addr()))
                 done = True
     sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
     return myDataList

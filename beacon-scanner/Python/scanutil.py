@@ -1,5 +1,7 @@
 import socket
 import os
+import re
+import uuid
 
 try:
     import httplib
@@ -34,4 +36,6 @@ def get_wifi_rssi(wifi_interface):
 		print("WiFi RSSI Error... Exiting...")
 		exit(1)
 
-
+# Function reads the host wifi mac address and returns as formatted string
+def display_mac_addr():
+	return ":".join(re.findall("..", "%012x" % uuid.getnode()))
