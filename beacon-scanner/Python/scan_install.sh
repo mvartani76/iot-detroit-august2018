@@ -10,8 +10,9 @@ printf "\nUpdating crontab to reset receiver every night...\n"
 sudo crontab reset-pi.d
 
 # Install ansible libraries for nightly code provisioning updates
-printf "\Updating Ansible libraries for nightly code provisioning...\n"
-sudo apt-get install ansible
+printf "\nUpdating Ansible libraries for nightly code provisioning...\n"
+sudo apt-get update
+sudo apt-get install ansible --fix-missing
 
 # Check to see if user downloaded the AWS start.sh file to the python directory
 if [ ! -f ./start.sh ]; then
