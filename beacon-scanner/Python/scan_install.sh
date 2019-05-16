@@ -5,6 +5,14 @@ printf "Starting Script...\n"
 # stop script on error
 set -e
 
+# Add the daily/nightly reset job to crontab - this will overwrite anything in the crontab
+printf "\nUpdating crontab to reset receiver every night...\n"
+sudo crontab reset-pi.d
+
+# Install ansible libraries for nightly code provisioning updates
+printf "\Updating Ansible libraries for nightly code provisioning...\n"
+sudo apt-get install ansible
+
 # Check to see if user downloaded the AWS start.sh file to the python directory
 if [ ! -f ./start.sh ]; then
 	printf "\nstart.sh not found. Please download from AWS....\n"
