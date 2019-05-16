@@ -26,6 +26,7 @@ import oled
 import subprocess
 import os
 import dotenv
+import socket
 from dotenv import load_dotenv, find_dotenv
 load_dotenv("/opt/msx/iot-detroit-august2018/beacon-scanner/Python/.env", override=True, verbose=True)
 
@@ -35,8 +36,8 @@ BEACON_UUID = os.getenv("BEACON_UUID")
 
 # Set some constants...
 health_signal_code = 1111
+reset_signal_code = 1112
 beacon_response_signal_code = 2222
-
 
 # get the hostname
 hostname = os.uname()[1]
@@ -45,7 +46,7 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.7"
+aws_iot_code_version = "1.8"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
@@ -162,6 +163,7 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 try:
 	oled.display_general_msg(oled_data, "Connecting to AWS IoT...", clientId, "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 	myAWSIoTMQTTClient.connect()
+	print("Connected to AWS IoT...\n")
 except:
 	oled.display_general_msg(oled_data, "Could not connect to AWS...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 	if scanutil.have_internet():
@@ -177,7 +179,27 @@ except:
 	oled.display_general_msg(oled_data, "Could not subscribe to topic...", clientId, status_rx_topic, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 	exit(1)
 
-time.sleep(2)
+time.sleep(1)
+
+# Send a reset signal to AWS for debugging
+resetMessage = str(str(scanutil.display_mac_addr()) + ", " + str(reset_signal_code) + ", 0, 0, 0, " + str(int(time.time())))
+
+print("Sending Reset Signal...\n")
+print(resetMessage)
+
+try:
+	oled.display_general_msg(oled_data, "Sending Reset Signal...", "", clientId, socket.gethostname(), aws_iot_code_version, 1)
+	myAWSIoTMQTTClient.publishAsync(topic, resetMessage, 1, ackCallback=customPubackCallback)
+	print("Sent Reset Signal...")
+except:
+	print("Could not send Reset Signal...")
+	oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+	# exit out of the program if no internet
+	if (not(scanutil.have_internet())):
+		oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+		exit(1)
+
+time.sleep(1)
 
 # zero out health counter
 health_count = 0
