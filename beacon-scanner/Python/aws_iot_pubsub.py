@@ -46,7 +46,7 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.10"
+aws_iot_code_version = "1.11"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
@@ -102,7 +102,7 @@ parser.add_argument("-mt", "--messageType", action="store", dest="messageType", 
 parser.add_argument("-as", "--syncType", action="store", dest="syncType", default="async", help="sync or async")
 parser.add_argument("-st", "--sleepTimer", action="store", dest="sleepTime", default=5, help="Time to sleep in main loop in seconds")
 parser.add_argument("-lc", "--loopCount", action="store", dest="loopCount", default=100, help="Loop Count for BLE Prase")
-parser.add_argument("-hct", "--healthCountThresh", action="store", dest="healthCountThresh", default=5, help="Health Count Threshold")
+parser.add_argument("-hct", "--healthCountThresh", action="store", dest="healthCountThresh", default=50, help="Health Count Threshold")
 
 args = parser.parse_args()
 host = args.host
