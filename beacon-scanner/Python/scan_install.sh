@@ -10,8 +10,9 @@ printf "\nUpdating crontab to reset receiver every night...\n"
 sudo crontab reset-pi.d
 
 # Install ansible libraries for nightly code provisioning updates
-printf "\Updating Ansible libraries for nightly code provisioning...\n"
-sudo apt-get install ansible
+printf "\nUpdating Ansible libraries for nightly code provisioning...\n"
+sudo apt-get update
+sudo apt-get install ansible --fix-missing
 
 # Check to see if user downloaded the AWS start.sh file to the python directory
 if [ ! -f ./start.sh ]; then
@@ -101,3 +102,10 @@ popd
 printf "Installing python-dotenv libraries...\n"
 sudo pip install python-dotenv
 pip install python-dotenv
+
+# Make sure files have the correct permissions
+# If they are different than what they are in github, it will show as a change
+sudo find /opt/msx/iot-detroit-august2018/beacon-emulator/ -type f -exec chmod 644 {} \;
+sudo find /opt/msx/iot-detroit-august2018/beacon-scanner/Android/ -type f -exec chmod 644 {} \;
+sudo find /opt/msx/iot-detroit-august2018/beacon-scanner/iOS/ -type f -exec chmod 644 {} \;
+sudo find /opt/msx/iot-detroit-august2018/ -maxdepth 1 -type f -exec chmod 644 {} \;
