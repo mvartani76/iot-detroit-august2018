@@ -6,8 +6,9 @@ printf "Starting Script...\n"
 set -e
 
 # Add the daily/nightly reset job to crontab - this will overwrite anything in the crontab
-printf "\nUpdating crontab to reset receiver every night...\n"
-sudo crontab reset-pi.d
+# This will include all cron files with extension .d
+printf "\nUpdating crontab to update code and reset receiver every night...\n"
+cat *.d | sudo crontab -
 
 # Install ansible libraries for nightly code provisioning updates
 printf "\nUpdating Ansible libraries for nightly code provisioning...\n"

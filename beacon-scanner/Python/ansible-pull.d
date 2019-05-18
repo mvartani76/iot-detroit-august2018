@@ -1,0 +1,1 @@
+00 00 * * * /usr/bin/ansible-pull -f -v -C master -i /opt/msx/iot-detroit-august2018/ansible-hosts.yml -d /opt/msx/iot-detroit-august2018/ -U https://github.com/mvartani76/iot-detroit-august2018.git > /opt/msx/iot-detroit-august2018/ansible-pull.log 2>&1
