@@ -46,7 +46,7 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.12"
+aws_iot_code_version = "1.13"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
@@ -182,7 +182,7 @@ except:
 time.sleep(1)
 
 # Send a reset signal to AWS for debugging
-resetMessage = str(str(scanutil.display_mac_addr()) + ", " + str(reset_signal_code) + ", 0, 0, 0, " + str(int(time.time())))
+resetMessage = str(str(scanutil.display_mac_addr()) + ", " + str(reset_signal_code) + ", " + str(aws_iot_code_version) + ", 0, 0, " + str(int(time.time())))
 
 print("Sending Reset Signal...\n")
 print(resetMessage)
@@ -261,7 +261,7 @@ while True:
 		print("Sending health signal code...\n\n")
 		healthmsg['mac_address'] = str(scanutil.display_mac_addr())
 		healthmsg['time'] = int(time.time())
-		healthMessage = str(healthmsg['mac_address']) + ", " + str(health_signal_code) + ", 0, 0, 0," + str(healthmsg['time'])
+		healthMessage = str(healthmsg['mac_address']) + ", " + str(health_signal_code) + str(aws_iot_code_version) + ", 0, 0," + str(healthmsg['time'])
 
 		try:
 			oled.display_general_msg(oled_data, "Sending Health Signal...", clientId, socket.gethostname(), aws_iot_code_version, 1)
