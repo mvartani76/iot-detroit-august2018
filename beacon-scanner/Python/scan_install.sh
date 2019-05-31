@@ -15,6 +15,10 @@ printf "\nUpdating Ansible libraries for nightly code provisioning...\n"
 sudo apt-get update
 sudo apt-get install ansible --fix-missing
 
+# Turn off wifi power management on wlan0
+printf "\nDisabling WiFi Power Management on wlan0...\n"
+sudo iwconfig wlan0 power off
+
 # Check to see if user downloaded the AWS start.sh file to the python directory
 if [ ! -f ./start.sh ]; then
 	printf "\nstart.sh not found. Please download from AWS....\n"
