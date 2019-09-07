@@ -72,8 +72,8 @@ def init_oled(disp_height=32):
 	oled = OledData(width, height, image, draw, padding, top, bottom, x, font, disp)
 	return oled
 
-# display_beacon_info() displays the time, major, minor, and rssi
-def display_beacon_info(oled, beacon, msg, code_ver, delay):
+# display_beacon_info() displays the time, major (number of times minor seen), minor, and rssi
+def display_beacon_info(oled, beacon, msg, beacon_sum, code_ver, delay):
 	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 
 	# Get the ip address
@@ -83,7 +83,7 @@ def display_beacon_info(oled, beacon, msg, code_ver, delay):
 	oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
 	oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
 	oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
- 	oled.draw.text((oled.x, oled.top+16), "Major: " + str(beacon.major), font=oled.font, fill=255)
+	oled.draw.text((oled.x, oled.top+16), "Major: " + str(beacon.major) + " #: " + str(beacon_sum), font=oled.font, fill=255)
  	oled.draw.text((oled.x, oled.top+24), "Minor: " + str(beacon.minor), font=oled.font, fill=255)
  	oled.draw.text((oled.x, oled.top+32), "RSSI: " + str(beacon.rssi[0]), font=oled.font, fill=255)
 	oled.draw.text((oled.x, oled.top+40), msg, font=oled.font, fill=255)

@@ -27,6 +27,7 @@ import subprocess
 import os
 import dotenv
 import socket
+import beacon_utility
 from dotenv import load_dotenv, find_dotenv
 load_dotenv("/opt/msx/iot-detroit-august2018/beacon-scanner/Python/.env", override=True, verbose=True)
 
@@ -46,7 +47,7 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.15"
+aws_iot_code_version = "1.16"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
@@ -204,6 +205,9 @@ time.sleep(1)
 # zero out health counter
 health_count = 0
 
+# Initialize beacon sum dictionary that counts the number of beacon responses
+beacon_sum = {}
+
 # Publish to the same topic in a loop forever
 while True:
 	message = {}
@@ -225,7 +229,7 @@ while True:
 			message['mac_addr'] = beacon.mac_addr
 			messageJson = json.dumps(message)
 			strMessage = str(beacon.mac_addr) + ", " + str(beacon_response_signal_code) + ", " + str(beacon.major) + ", " + str(beacon.minor) + ", " + str(beacon.rssi[0]) + ", " + str(beacon.btime)
-				
+
 			# Check the messagType argument to determine message format
 			if args.messageType == 'json':
 				pubmessage = messageJson
@@ -251,8 +255,11 @@ while True:
 			print('Published topic %s: %s\n' % (topic, pubmessage))
 			print('Loop count: %d / %d\n' % (loop_count, len(returnedList)))
 			loop_count = loop_count + 1
-			oled.display_beacon_info(oled_data, beacon, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 0.1)
+			# Sum the amount of times we see a specific beacon minor
+			beacon_sum = beacon_utility.accumulate_beacons(beacon_sum, {beacon.minor:1})
+			oled.display_beacon_info(oled_data, beacon, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), beacon_sum[beacon.minor], aws_iot_code_version, 0.1)
 			time.sleep(args.sleepTime)
+
 	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1.1)
 
 	# check to see if health_count greater than health count threshold
