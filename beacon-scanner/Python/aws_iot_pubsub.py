@@ -47,7 +47,7 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.16"
+aws_iot_code_version = "1.17"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
@@ -112,7 +112,11 @@ certificatePath = args.certificatePath
 privateKeyPath = args.privateKeyPath
 port = args.port
 useWebsocket = args.useWebsocket
+
+# set the topic as feature/company/hostname
 topic = args.topic
+topic = topic + "/" + hostname[:3] + "/" + hostname
+
 status_rx_topic = args.status_rx_topic
 status_ack_topic = args.status_ack_topic
 messageType = args.messageType
