@@ -47,7 +47,7 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.17"
+aws_iot_code_version = "1.18"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
@@ -103,7 +103,7 @@ parser.add_argument("-mt", "--messageType", action="store", dest="messageType", 
 parser.add_argument("-as", "--syncType", action="store", dest="syncType", default="async", help="sync or async")
 parser.add_argument("-st", "--sleepTimer", action="store", dest="sleepTime", default=5, help="Time to sleep in main loop in seconds")
 parser.add_argument("-lc", "--loopCount", action="store", dest="loopCount", default=100, help="Loop Count for BLE Prase")
-parser.add_argument("-hct", "--healthCountThresh", action="store", dest="healthCountThresh", default=50, help="Health Count Threshold")
+parser.add_argument("-hct", "--healthCountThresh", action="store", dest="healthCountThresh", default=10, help="Health Count Threshold")
 
 args = parser.parse_args()
 host = args.host
@@ -208,6 +208,7 @@ time.sleep(1)
 
 # zero out health counter
 health_count = 0
+old_time = int(time.time())
 
 # Initialize beacon sum dictionary that counts the number of beacon responses
 beacon_sum = {}
@@ -215,6 +216,7 @@ beacon_sum = {}
 # Publish to the same topic in a loop forever
 while True:
 	message = {}
+	healthmsg = {}
 	# Run the BLE Scan
 	# Display that the beacon scan is starting
 	oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 0.1)
@@ -267,16 +269,21 @@ while True:
 	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1.1)
 
 	# check to see if health_count greater than health count threshold
-	if (health_count > health_count_thresh):
+	if (health_count >= health_count_thresh):
+		# Calculate the the difference between successive health signals
+		health_time_diff = int(time.time()) - old_time
+		old_time = int(time.time())
 		health_count = 0
 		print("Sending health signal code...\n\n")
+		print("Time difference: %s\n" % str(health_time_diff))
 		healthmsg['mac_address'] = str(scanutil.display_mac_addr())
 		healthmsg['time'] = int(time.time())
-		healthMessage = str(healthmsg['mac_address']) + ", " + str(health_signal_code) + str(aws_iot_code_version) + ", 0, 0," + str(healthmsg['time'])
+		healthMessage = str(healthmsg['mac_address']) + ", " + str(health_signal_code) + ", " + str(aws_iot_code_version) + ", " + str(health_time_diff) + ", 0, " + str(healthmsg['time'])
 
 		try:
-			oled.display_general_msg(oled_data, "Sending Health Signal...", clientId, socket.gethostname(), aws_iot_code_version, 1)
+			oled.display_general_msg(oled_data, "Sending Health Signal...", "", clientId, str(socket.gethostname()), aws_iot_code_version, 1)
 			myAWSIoTMQTTClient.publishAsync(topic, healthMessage, 1, ackCallback=customPubackCallback)
+			print('Published health topic %s: %s\n' % (topic, healthMessage))
 		except:
 			oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
 			# exit out of the program if no internet
