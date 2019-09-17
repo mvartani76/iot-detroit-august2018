@@ -7,3 +7,6 @@ __pycache__/
 *.key
 *.crt
 *.cert.pem
+
+# Environment Files
+*.env
