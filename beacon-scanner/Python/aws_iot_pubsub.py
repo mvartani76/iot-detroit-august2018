@@ -28,6 +28,7 @@ import os
 import dotenv
 import socket
 import beacon_utility
+import file_access
 from dotenv import load_dotenv, find_dotenv
 load_dotenv("/opt/msx/iot-detroit-august2018/beacon-scanner/Python/.env", override=True, verbose=True)
 
@@ -39,6 +40,9 @@ BEACON_UUID = os.getenv("BEACON_UUID")
 health_signal_code = 1111
 reset_signal_code = 1112
 beacon_response_signal_code = 2222
+EXITCODE_RESET_SIGNAL_SECTION = 1
+EXITCODE_BLUETOOTH_SCAN_SECTION = 2
+EXITCODE_HEALTH_SIGNAL_SECTION = 3
 
 # get the hostname
 hostname = os.uname()[1]
@@ -47,10 +51,14 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.18"
+aws_iot_code_version = "1.19"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
+
+# Initialize File Access Object
+file_access_data = file_access.FileAccess()
+
 
 dev_id = 0
 try:
@@ -186,8 +194,14 @@ except:
 
 time.sleep(1)
 
+# Check to see if exit file exists
+# If it does, read the code and set as exitcode
+file_access_data.readExitFileAndSetCode()
+print("read file...")
+print(file_access_data.exitcode)
+
 # Send a reset signal to AWS for debugging
-resetMessage = str(str(scanutil.display_mac_addr()) + ", " + str(reset_signal_code) + ", " + str(aws_iot_code_version) + ", 0, 0, " + str(int(time.time())))
+resetMessage = str(str(scanutil.display_mac_addr()) + ", " + str(reset_signal_code) + ", " + str(aws_iot_code_version) + ", " + str(file_access_data.exitcode) + ", 0, " + str(int(time.time())))
 
 print("Sending Reset Signal...\n")
 print(resetMessage)
@@ -202,6 +216,7 @@ except:
 	# exit out of the program if no internet
 	if (not(scanutil.have_internet())):
 		oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+		file_access_data.writeExitCode(EXITCODE_RESET_SIGNAL_SECTION)
 		exit(1)
 
 time.sleep(1)
@@ -254,6 +269,7 @@ while True:
 					# exit out of the program if no internet
 					if (not(scanutil.have_internet())):
 						oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+						file_access_data.writeExitCode(EXITCODE_BLUETOOTH_SCAN_SECTION)
 						exit(1)
 			else:
 				myAWSIoTMQTTClient.publish(topic, pubmessage, 1)
@@ -289,6 +305,7 @@ while True:
 			# exit out of the program if no internet
 			if (not(scanutil.have_internet())):
 				oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+				file_access_data.writeExitCode(EXITCODE_HEALTH_SIGNAL_SECTION)
 				exit(1)
 	else:
 		health_count = health_count + 1
