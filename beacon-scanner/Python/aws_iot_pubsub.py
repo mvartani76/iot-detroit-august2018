@@ -40,6 +40,7 @@ BEACON_UUID = os.getenv("BEACON_UUID")
 health_signal_code = 1111
 reset_signal_code = 1112
 beacon_response_signal_code = 2222
+EXITCODE_EVERYTHING_OK = 0
 EXITCODE_RESET_SIGNAL_SECTION = 1
 EXITCODE_BLUETOOTH_SCAN_SECTION = 2
 EXITCODE_HEALTH_SIGNAL_SECTION = 3
@@ -51,7 +52,7 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.19"
+aws_iot_code_version = "1.20"
 
 # Initialize OLED Display Object
 oled_data = oled.init_oled(64)
@@ -111,7 +112,7 @@ parser.add_argument("-mt", "--messageType", action="store", dest="messageType", 
 parser.add_argument("-as", "--syncType", action="store", dest="syncType", default="async", help="sync or async")
 parser.add_argument("-st", "--sleepTimer", action="store", dest="sleepTime", default=5, help="Time to sleep in main loop in seconds")
 parser.add_argument("-lc", "--loopCount", action="store", dest="loopCount", default=100, help="Loop Count for BLE Prase")
-parser.add_argument("-hct", "--healthCountThresh", action="store", dest="healthCountThresh", default=10, help="Health Count Threshold")
+parser.add_argument("-hct", "--healthTimeThresh", action="store", dest="healthTimeThresh", default=600, help="Health Time Threshold in seconds")
 
 args = parser.parse_args()
 host = args.host
@@ -129,7 +130,7 @@ status_rx_topic = args.status_rx_topic
 status_ack_topic = args.status_ack_topic
 messageType = args.messageType
 parse_loop_count = args.loopCount
-health_count_thresh = args.healthCountThresh
+health_time_thresh = args.healthTimeThresh
 
 if args.useWebsocket and args.certificatePath and args.privateKeyPath:
     parser.error("X.509 cert authentication and WebSocket are mutual exclusive. Please pick one.")
@@ -206,6 +207,9 @@ resetMessage = str(str(scanutil.display_mac_addr()) + ", " + str(reset_signal_co
 print("Sending Reset Signal...\n")
 print(resetMessage)
 
+# Initialize the exit code as everything OK
+file_access_data.writeExitCode(EXITCODE_EVERYTHING_OK)
+
 try:
 	oled.display_general_msg(oled_data, "Sending Reset Signal...", "", clientId, socket.gethostname(), aws_iot_code_version, 1)
 	myAWSIoTMQTTClient.publishAsync(topic, resetMessage, 1, ackCallback=customPubackCallback)
@@ -221,14 +225,14 @@ except:
 
 time.sleep(1)
 
-# zero out health counter
-health_count = 0
+# Mark the initial unix time that the loop starts to use for health signal timer/counter
 old_time = int(time.time())
 
 # Initialize beacon sum dictionary that counts the number of beacon responses
 beacon_sum = {}
+beacon_sum_all_old = 0
 
-# Publish to the same topic in a loop forever
+# Loop forever publishing to MQTT topics
 while True:
 	message = {}
 	healthmsg = {}
@@ -279,22 +283,36 @@ while True:
 			loop_count = loop_count + 1
 			# Sum the amount of times we see a specific beacon minor
 			beacon_sum = beacon_utility.accumulate_beacons(beacon_sum, {beacon.minor:1})
+			print(beacon_sum)
+			print("total beacon pings: %s \n" % beacon_utility.accumulate_all_beacons(beacon_sum))
 			oled.display_beacon_info(oled_data, beacon, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), beacon_sum[beacon.minor], aws_iot_code_version, 0.1)
 			time.sleep(args.sleepTime)
 
 	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1.1)
 
+	# Sum all the received beacon pings
+	# This is currently cumulative of all pings received since reset
+	beacon_sum_all = beacon_utility.accumulate_all_beacons(beacon_sum)
+
+	# Calculate the time difference since the last health signal
+	health_time_diff = int(time.time()) - old_time
+	print("health time difference: %s \n" % str(health_time_diff))
+
 	# check to see if health_count greater than health count threshold
-	if (health_count >= health_count_thresh):
-		# Calculate the the difference between successive health signals
-		health_time_diff = int(time.time()) - old_time
+	if (health_time_diff >= health_time_thresh):
+		# Store the time that health signal is sent
 		old_time = int(time.time())
-		health_count = 0
+
+		# Calculate the difference between successive total beacon sums to get the
+		# total beacon sum since the last health signal
+		beacon_sum_diff = beacon_sum_all - beacon_sum_all_old
+		beacon_sum_all_old = beacon_sum_all
+
 		print("Sending health signal code...\n\n")
 		print("Time difference: %s\n" % str(health_time_diff))
 		healthmsg['mac_address'] = str(scanutil.display_mac_addr())
 		healthmsg['time'] = int(time.time())
-		healthMessage = str(healthmsg['mac_address']) + ", " + str(health_signal_code) + ", " + str(aws_iot_code_version) + ", " + str(health_time_diff) + ", 0, " + str(healthmsg['time'])
+		healthMessage = str(healthmsg['mac_address']) + ", " + str(health_signal_code) + ", " + str(aws_iot_code_version) + ", " + str(health_time_diff) + ", " + str(beacon_sum_diff) + ", " + str(healthmsg['time'])
 
 		try:
 			oled.display_general_msg(oled_data, "Sending Health Signal...", "", clientId, str(socket.gethostname()), aws_iot_code_version, 1)
@@ -308,5 +326,4 @@ while True:
 				file_access_data.writeExitCode(EXITCODE_HEALTH_SIGNAL_SECTION)
 				exit(1)
 	else:
-		health_count = health_count + 1
-		print('Health Count: %d \n' % health_count)
+		print('Time since last signal %d less than threshold of %d.\n' % (health_time_diff, health_time_thresh))

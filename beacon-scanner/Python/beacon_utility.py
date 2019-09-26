@@ -7,3 +7,7 @@ def accumulate_beacons(accumulation_dict, beacon_dict):
     			accumulation_dict[k] = v
 
 	return accumulation_dict
+
+# function that accumulates the total number of beacon pings across all beacon minors
+def accumulate_all_beacons(accumulation_dict):
+	return sum(accumulation_dict.values())
