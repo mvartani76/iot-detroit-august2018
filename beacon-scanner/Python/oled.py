@@ -25,109 +25,113 @@ class OledData(object):
 	self.font = font
 	self.disp = disp
 
-def init_oled(disp_height=32):
-	# Initialize OLED Display
-	RST = None
-	if (disp_height == 32):
-		# 128x32 display with hardware I2C:
-		disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
-	elif (disp_height == 64):
-		# 128x64 display with hardware I2C:
-		disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
-	else:
-		print("Invalid OLED Config...")
-		exit(1)
+def init_oled(disp_height=32, enabled=True):
+	if enabled:
+		# Initialize OLED Display
+		RST = None
+		if (disp_height == 32):
+			# 128x32 display with hardware I2C:
+			disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
+		elif (disp_height == 64):
+			# 128x64 display with hardware I2C:
+			disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+		else:
+			print("Invalid OLED Config...")
+			exit(1)
 
-	# Initialize library.
-	disp.begin()
+		# Initialize library.
+		disp.begin()
 
-	# Clear display.
-	disp.clear()
-	disp.display()
+		# Clear display.
+		disp.clear()
+		disp.display()
 
-	# Create blank image for drawing.
-	# Make sure to create image with mode '1' for 1-bit color.
-	width = disp.width
-	height = disp.height
-	image = Image.new('1', (width, height))
+		# Create blank image for drawing.
+		# Make sure to create image with mode '1' for 1-bit color.
+		width = disp.width
+		height = disp.height
+		image = Image.new('1', (width, height))
 
-	# Get drawing object to draw on image.
-	draw = ImageDraw.Draw(image)
+		# Get drawing object to draw on image.
+		draw = ImageDraw.Draw(image)
 
-	# Draw a black filled box to clear the image.
-	draw.rectangle((0,0,width,height), outline=0, fill=0)
+		# Draw a black filled box to clear the image.
+		draw.rectangle((0,0,width,height), outline=0, fill=0)
 
-	# Draw some shapes.
-	# First define some constants to allow easy resizing of shapes.
-	padding = -2
-	top = padding
- 	bottom = height-padding
-	# Move left to right keeping track of the current x position for drawing shapes.
-	x = 0
+		# Draw some shapes.
+		# First define some constants to allow easy resizing of shapes.
+		padding = -2
+		top = padding
+	 	bottom = height-padding
+		# Move left to right keeping track of the current x position for drawing shapes.
+		x = 0
 
-	# Load default font.
-	font = ImageFont.load_default()
+		# Load default font.
+		font = ImageFont.load_default()
 
-	# Store into Oled Class
-	oled = OledData(width, height, image, draw, padding, top, bottom, x, font, disp)
-	return oled
+		# Store into Oled Class
+		oled = OledData(width, height, image, draw, padding, top, bottom, x, font, disp)
+		return oled
 
 # display_beacon_info() displays the time, major (number of times minor seen), minor, and rssi
-def display_beacon_info(oled, beacon, msg, beacon_sum, code_ver, delay):
-	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
+def display_beacon_info(oled, beacon, msg, beacon_sum, code_ver, delay, enabled):
+	if enabled:
+		current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 
-	# Get the ip address
-	ip_addr = scanutil.get_ip_addr()
+		# Get the ip address
+		ip_addr = scanutil.get_ip_addr()
 
-	# Display time and beacon information on OLED display
-	oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
-	oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+16), "Major: " + str(beacon.major) + " #: " + str(beacon_sum), font=oled.font, fill=255)
- 	oled.draw.text((oled.x, oled.top+24), "Minor: " + str(beacon.minor), font=oled.font, fill=255)
- 	oled.draw.text((oled.x, oled.top+32), "RSSI: " + str(beacon.rssi[0]), font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+40), msg, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+48), code_ver, font=oled.font, fill=255)
+		# Display time and beacon information on OLED display
+		oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
+		oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+16), "Major: " + str(beacon.major) + " #: " + str(beacon_sum), font=oled.font, fill=255)
+	 	oled.draw.text((oled.x, oled.top+24), "Minor: " + str(beacon.minor), font=oled.font, fill=255)
+	 	oled.draw.text((oled.x, oled.top+32), "RSSI: " + str(beacon.rssi[0]), font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+40), msg, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+48), code_ver, font=oled.font, fill=255)
 
-        oled.disp.image(oled.image)
-        oled.disp.display()
-        time.sleep(delay)
+		oled.disp.image(oled.image)
+		oled.disp.display()
+		time.sleep(delay)
 
 # display_beacon_scan_msg()  displays the time and a message
-def display_beacon_scan_msg(oled, msg1, msg2, code_ver, delay):
-	oled.disp.clear()
-	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
+def display_beacon_scan_msg(oled, msg1, msg2, code_ver, delay, enabled):
+	if enabled:
+		oled.disp.clear()
+		current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 
-	# Get the ip address
-	ip_addr = scanutil.get_ip_addr()
+		# Get the ip address
+		ip_addr = scanutil.get_ip_addr()
 
-	# Display time and beacon information on OLED display
-	oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
-	oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+16), msg1, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+40), msg2, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+48), code_ver, font=oled.font, fill=255)
-	oled.disp.image(oled.image)
-	oled.disp.display()
-	time.sleep(delay)
+		# Display time and beacon information on OLED display
+		oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
+		oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+16), msg1, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+40), msg2, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+48), code_ver, font=oled.font, fill=255)
+		oled.disp.image(oled.image)
+		oled.disp.display()
+		time.sleep(delay)
 
-def display_general_msg(oled, msg1, msg2, msg3, msg4, code_ver, delay):
-	oled.disp.clear()
-	current_time = time.strftime('%m/%d/%Y %H:%M:%S')
+def display_general_msg(oled, msg1, msg2, msg3, msg4, code_ver, delay, enabled):
+	if enabled:
+		oled.disp.clear()
+		current_time = time.strftime('%m/%d/%Y %H:%M:%S')
 
-	# Get the ip address
-	ip_addr = scanutil.get_ip_addr()
+		# Get the ip address
+		ip_addr = scanutil.get_ip_addr()
 
-	# Display time and msgs on OLED display
-        oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
-	oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+16), msg1, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+24), msg2, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+32), msg3, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+40), msg4, font=oled.font, fill=255)
-	oled.draw.text((oled.x, oled.top+48), code_ver, font=oled.font, fill=255)
-	oled.disp.image(oled.image)
-	oled.disp.display()
-	time.sleep(delay)
+		# Display time and msgs on OLED display
+		oled.draw.rectangle((0,0,oled.width,oled.height), outline=0, fill=0)
+		oled.draw.text((oled.x, oled.top), current_time, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+8), ip_addr, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+16), msg1, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+24), msg2, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+32), msg3, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+40), msg4, font=oled.font, fill=255)
+		oled.draw.text((oled.x, oled.top+48), code_ver, font=oled.font, fill=255)
+		oled.disp.image(oled.image)
+		oled.disp.display()
+		time.sleep(delay)

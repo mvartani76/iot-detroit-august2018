@@ -29,6 +29,7 @@ import dotenv
 import socket
 import beacon_utility
 import file_access
+import i2c_util
 from dotenv import load_dotenv, find_dotenv
 load_dotenv("/opt/msx/iot-detroit-august2018/beacon-scanner/Python/.env", override=True, verbose=True)
 
@@ -52,10 +53,13 @@ hostname = os.uname()[1]
 clientId = hostname
 
 # Set the code version
-aws_iot_code_version = "1.20"
+aws_iot_code_version = "1.21"
 
+# Check to see if anything connected to i2c on bus 1
+i2c_found = i2c_util.i2c_find(1)
+print(i2c_found)
 # Initialize OLED Display Object
-oled_data = oled.init_oled(64)
+oled_data = oled.init_oled(64, i2c_found)
 
 # Initialize File Access Object
 file_access_data = file_access.FileAccess()
@@ -65,10 +69,10 @@ dev_id = 0
 try:
         sock = bluez.hci_open_dev(dev_id)
         print "ble thread started"
-	oled.display_general_msg(oled_data, "BLE Thread Started", "", "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+	oled.display_general_msg(oled_data, "BLE Thread Started", "", "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 except:
         print "error accessing bluetooth device..."
-	oled.display_general_msg(oled_data, "Bluetooth Error", "", "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+	oled.display_general_msg(oled_data, "Bluetooth Error", "", "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
         sys.exit(1)
 
 blescan.hci_le_set_scan_parameters(sock)
@@ -87,7 +91,7 @@ def status_sub_callback(client, userdata, message):
 		ackmsg['ipaddr'] = scanutil.get_ip_addr()
 		ackmsg['wifi_rssi'] = scanutil.get_wifi_rssi('wlan0')
 		ackjson = json.dumps(ackmsg, ensure_ascii=False)
-		oled.display_general_msg(oled_data, "Received Message", hostname, ackmsg['ssid'], "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 5)
+		oled.display_general_msg(oled_data, "Received Message", hostname, ackmsg['ssid'], "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 5, i2c_found)
 		myAWSIoTMQTTClient.publishAsync(status_ack_topic, ackjson, 1, ackCallback=customPubackCallback)
 
 # Custom MQTT Puback callback
@@ -155,7 +159,7 @@ streamHandler.setFormatter(formatter)
 logger.addHandler(streamHandler)
 
 # Init AWSIoTMQTTClient
-oled.display_general_msg(oled_data, "Init AWS IoT...", clientId, "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+oled.display_general_msg(oled_data, "Init AWS IoT...", clientId, "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 myAWSIoTMQTTClient = None
 if useWebsocket:
     myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId, useWebsocket=True)
@@ -175,22 +179,22 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 # Connect and subscribe to AWS IoT
 try:
-	oled.display_general_msg(oled_data, "Connecting to AWS IoT...", clientId, "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+	oled.display_general_msg(oled_data, "Connecting to AWS IoT...", clientId, "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 	myAWSIoTMQTTClient.connect()
 	print("Connected to AWS IoT...\n")
 except:
-	oled.display_general_msg(oled_data, "Could not connect to AWS...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+	oled.display_general_msg(oled_data, "Could not connect to AWS...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 	if scanutil.have_internet():
-		oled.display_general_msg(oled_data, "Could not connect to AWS...", "Internet OK...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+		oled.display_general_msg(oled_data, "Could not connect to AWS...", "Internet OK...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 	else:
-		oled.display_general_msg(oled_data, "Could not connect to AWS...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+		oled.display_general_msg(oled_data, "Could not connect to AWS...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 	exit(1)
 
 try:
-	oled.display_general_msg(oled_data, "Subscribing to Topic...", clientId, status_rx_topic, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+	oled.display_general_msg(oled_data, "Subscribing to Topic...", clientId, status_rx_topic, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 	myAWSIoTMQTTClient.subscribe(status_rx_topic, 1, status_sub_callback)
 except:
-	oled.display_general_msg(oled_data, "Could not subscribe to topic...", clientId, status_rx_topic, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+	oled.display_general_msg(oled_data, "Could not subscribe to topic...", clientId, status_rx_topic, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 	exit(1)
 
 time.sleep(1)
@@ -211,15 +215,15 @@ print(resetMessage)
 file_access_data.writeExitCode(EXITCODE_EVERYTHING_OK)
 
 try:
-	oled.display_general_msg(oled_data, "Sending Reset Signal...", "", clientId, socket.gethostname(), aws_iot_code_version, 1)
+	oled.display_general_msg(oled_data, "Sending Reset Signal...", "", clientId, socket.gethostname(), aws_iot_code_version, 1, i2c_found)
 	myAWSIoTMQTTClient.publishAsync(topic, resetMessage, 1, ackCallback=customPubackCallback)
 	print("Sent Reset Signal...")
 except:
 	print("Could not send Reset Signal...")
-	oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+	oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 	# exit out of the program if no internet
 	if (not(scanutil.have_internet())):
-		oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+		oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 		file_access_data.writeExitCode(EXITCODE_RESET_SIGNAL_SECTION)
 		exit(1)
 
@@ -238,7 +242,7 @@ while True:
 	healthmsg = {}
 	# Run the BLE Scan
 	# Display that the beacon scan is starting
-	oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 0.1)
+	oled.display_beacon_scan_msg(oled_data, "Scanning for beacons...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 0.1, i2c_found)
 	# Zero loop_count
 	loop_count = 0
 	returnedList = blescan.parse_events(sock, parse_loop_count)
@@ -266,13 +270,13 @@ while True:
 				# Perform some simple error catching on publish command
 				# MQTT Broker handles offline queueing so not sure when we would see error
 				try:
-					oled.display_general_msg(oled_data, "Publishing AWS MQTT...", clientId, "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+					oled.display_general_msg(oled_data, "Publishing AWS MQTT...", clientId, "", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 					myAWSIoTMQTTClient.publishAsync(topic, pubmessage, 1, ackCallback=customPubackCallback)
 				except:
-					oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+					oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 					# exit out of the program if no internet
 					if (not(scanutil.have_internet())):
-						oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+						oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 						file_access_data.writeExitCode(EXITCODE_BLUETOOTH_SCAN_SECTION)
 						exit(1)
 			else:
@@ -285,10 +289,10 @@ while True:
 			beacon_sum = beacon_utility.accumulate_beacons(beacon_sum, {beacon.minor:1})
 			print(beacon_sum)
 			print("total beacon pings: %s \n" % beacon_utility.accumulate_all_beacons(beacon_sum))
-			oled.display_beacon_info(oled_data, beacon, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), beacon_sum[beacon.minor], aws_iot_code_version, 0.1)
+			oled.display_beacon_info(oled_data, beacon, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), beacon_sum[beacon.minor], aws_iot_code_version, 0.1, i2c_found)
 			time.sleep(args.sleepTime)
 
-	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1.1)
+	oled.display_beacon_scan_msg(oled_data, "Receiver sleeping...", "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1.1, i2c_found)
 
 	# Sum all the received beacon pings
 	# This is currently cumulative of all pings received since reset
@@ -315,14 +319,14 @@ while True:
 		healthMessage = str(healthmsg['mac_address']) + ", " + str(health_signal_code) + ", " + str(aws_iot_code_version) + ", " + str(health_time_diff) + ", " + str(beacon_sum_diff) + ", " + str(healthmsg['time'])
 
 		try:
-			oled.display_general_msg(oled_data, "Sending Health Signal...", "", clientId, str(socket.gethostname()), aws_iot_code_version, 1)
+			oled.display_general_msg(oled_data, "Sending Health Signal...", "", clientId, str(socket.gethostname()), aws_iot_code_version, 1, i2c_found)
 			myAWSIoTMQTTClient.publishAsync(topic, healthMessage, 1, ackCallback=customPubackCallback)
 			print('Published health topic %s: %s\n' % (topic, healthMessage))
 		except:
-			oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+			oled.display_general_msg(oled_data, "Could Not Publish...", "Checking Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 			# exit out of the program if no internet
 			if (not(scanutil.have_internet())):
-				oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1)
+				oled.display_general_msg(oled_data, "Could Not Publish...", "No Internet...", clientId, "WiFi RSSI: " + scanutil.get_wifi_rssi('wlan0'), aws_iot_code_version, 1, i2c_found)
 				file_access_data.writeExitCode(EXITCODE_HEALTH_SIGNAL_SECTION)
 				exit(1)
 	else:
